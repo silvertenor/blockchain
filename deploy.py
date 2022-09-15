@@ -1,5 +1,4 @@
 # web3.../deploy.py
-from itertools import chain
 from solcx import compile_standard, install_solc
 import json
 from web3 import Web3
