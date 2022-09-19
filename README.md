@@ -22,26 +22,19 @@
 1. Download Anaconda (or Miniconda) for your OS and run installer
     - [Anaconda Website](https://www.anaconda.com/products/distribution)
 2. Set up environment
-    - ```conda create -n blockchainEnv python=3.9```
-    - ```conda activate blockchainEnv```
-3. Install dependencies
-    - ```pip install py-solc-x python-dotenv web3```
-4. Install and run Ganache
+    - ```conda env create -f environment.yml```
+    - ```conda activate block```
+3. Install and run Ganache
     - [Ganache Website](https://trufflesuite.com/ganache/)
     - Open app and click quickstart
     - change ```my_address``` in ```deploy.py``` to match one of the account numbers
     - change ```PRIVATE_KEY``` in ```.env``` to match corresponding private key
-5. Run the code!
+4. Run the code!
     - ```python deploy.py```
     
 
-## Instructions for installing Jupyter Lab (easy development)
-
-1. Make sure conda environment is active
-    - ```conda activate blockchainEnv```
-2. Install Jupyter Lab
-    - ```conda install jupyterlab```
-3. Launch
+## Instructions for starting Jupyter Lab (easy development)
+1. Launch
     - ```jupyter lab```
 
 
