@@ -59,4 +59,4 @@
 	<ModbusSlave FileName="ModbusSlave.Xml" />
 	<ModbusMasterBlockwareConfig KeepAlive="10" CommandResponseTime="100" ConnectionTimeout="10" />
 	<UndrivenConstantsSettings ShowControlConstants="true" ShowAllUndrivenVariables="false" />
-</MarkVIDevice>TEST
+</MarkVIDevice>
