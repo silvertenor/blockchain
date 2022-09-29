@@ -1,0 +1,49 @@
+Opened workstation by DESKTOP-V8GI6RV\Colin on computer DESKTOP-V8GI6RV
+7/4/2022 5:48:56 PM, Info, Starting Build
+7/4/2022 5:48:56 PM, Info, Feature WorkstationSTService - validating operating system specific items for target operating system Windows
+7/4/2022 5:48:56 PM, Info, Feature Tss - validating operating system specific items for target operating system Windows
+7/4/2022 5:48:56 PM, Info, Beginning refresh of consumed device mako. The protocol used for this device is EGD.
+7/4/2022 5:48:56 PM, Info, Beginning validation of IEC61850 protocol
+7/4/2022 5:48:56 PM, Info, Validating NTP Configuration.
+7/4/2022 5:48:56 PM, Warning, The local WorkstationST override of the System Time Synchronization Settings has been enabled.
+7/4/2022 5:48:56 PM, Info, Feature OPCServer - validating operating system specific items for target operating system Windows
+7/4/2022 5:48:56 PM, Info, Feature OpcUaServer - validating operating system specific items for target operating system Windows
+7/4/2022 5:48:56 PM, Info, Feature OPCAEServer - validating operating system specific items for target operating system Windows
+7/4/2022 5:48:56 PM, Info, Feature GSM - validating operating system specific items for target operating system Windows
+7/4/2022 5:48:56 PM, Info, Feature TCI - validating operating system specific items for target operating system Windows
+7/4/2022 5:48:56 PM, Info, Feature AlarmServer - validating operating system specific items for target operating system Windows
+7/4/2022 5:48:56 PM, Info, Feature Hmi - validating operating system specific items for target operating system Windows
+7/4/2022 5:48:56 PM, Info, Validating HMI feature
+7/4/2022 5:48:56 PM, Warning, The HMI feature Screen File Path has not been defined.  The HMI screen file functionality will not function.
+7/4/2022 5:48:56 PM, Warning, The master PC path is not defined.  The HMI screen file functionality in the HMI feature will not work correctly without defining the  Master path.  The master PC path is defined in the properties of the System configuration.
+7/4/2022 5:48:56 PM, Info, Feature EgdConfigServer - validating operating system specific items for target operating system Windows
+7/4/2022 5:48:57 PM, Info, Beginning build of IEC61850 protocol
+7/4/2022 5:48:57 PM, Info, Beginning build of OPC DA server configuration
+7/4/2022 5:48:57 PM, Info, Beginning build of OPC AE server configuration
+7/4/2022 5:48:57 PM, Info, Beginning build of OPC UA server configuration
+7/4/2022 5:48:57 PM, Info, Beginning Build of GSM Configuration.
+7/4/2022 5:48:57 PM, Info, Beginning build of Alarm configuration
+7/4/2022 5:48:57 PM, Info, Beginning build of HMI configuration
+7/4/2022 5:48:57 PM, Info, Beginning build of EGD Configuration Server configuration.
+7/4/2022 5:48:57 PM, Info, Alarm Help Files will not be created because the "Publish Alarm Help" field on the System is not set to True.
+7/4/2022 5:48:57 PM, Info, Starting publish of EGD configuration to EGD Configuration Server DESKTOP-V8GI6RV.
+7/4/2022 5:48:57 PM, Info, Publish EGD GuiDevice Information to configuration server.
+7/4/2022 5:48:57 PM, Info, Publish EGD Consumed Data to the configuration server.
+7/4/2022 5:48:57 PM, Info, Publish non EGD Symbols to the configuration server.
+7/4/2022 5:48:58 PM, Info, Publish EGD Symbols to the configuration server.
+7/4/2022 5:48:58 PM, Info, Completed publish to EGD Config Server with 0 errors and 0 warnings.
+7/4/2022 5:48:59 PM, Info, Configuration Saved
+7/4/2022 5:49:01 PM, Info, Completed build with 0 errors and 3 warnings.
+7/4/2022 5:49:09 PM, Info, Download started to address '192.168.101.2'
+7/4/2022 5:49:09 PM, Info, Downloading application code to workstation-0 WorkstationST computer.
+7/4/2022 5:49:09 PM, Info, Download Started
+7/4/2022 5:49:11 PM, Info, Download Complete
+7/4/2022 5:49:11 PM, Info, Download completed with 0 errors and 0 warnings.
+7/4/2022 5:49:35 PM, Info, Alarm Help Files will not be created because the "Publish Alarm Help" field on the System is not set to True.
+7/4/2022 5:49:35 PM, Info, Starting publish of EGD configuration to EGD Configuration Server DESKTOP-V8GI6RV.
+7/4/2022 5:49:35 PM, Info, Publish EGD GuiDevice Information to configuration server.
+7/4/2022 5:49:36 PM, Info, Publish non EGD Symbols to the configuration server.
+7/4/2022 5:49:36 PM, Info, Publish EGD Symbols to the configuration server.
+7/4/2022 5:49:36 PM, Info, Completed publish to EGD Config Server with 0 errors and 0 warnings.
+7/4/2022 5:49:36 PM, Info, Configuration Saved
+7/4/2022 5:50:01 PM, Info, Closed workstation

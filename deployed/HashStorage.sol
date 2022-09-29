@@ -2,7 +2,7 @@
 
 pragma solidity 0.6.0;
 
-contract HashList {
+contract HashStorage {
     // pull in hash number;
     string hashNumber;
     struct Hash {
