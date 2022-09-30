@@ -2,7 +2,7 @@
 
 pragma solidity 0.6.0;
 
-contract HashList {
+contract HashStorage {
     struct Hash {
         // assosiate date/time with hash number
         string time;
