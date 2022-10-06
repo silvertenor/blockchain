@@ -7,6 +7,7 @@ contract HashStorage {
         // assosiate date/time with hash number
         string time;
         string hashNumber;
+        // string Signature;
     }
 
     Hash hash;
