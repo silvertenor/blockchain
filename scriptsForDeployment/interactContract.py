@@ -1,110 +1,223 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[1]:
+
+
+from notebook.services.config import ConfigManager
+cm = ConfigManager()
+cm.update('livereveal', {
+              'width': 1000,
+              'height': 1000,
+              'scroll': True,
+})
+
+
 # # Interaction of Parsed Data, Hashes, and Deployed Contracts
+# ### GE Cybersecurity Project
 # <hr/>
 
-# ### Step 1 - Build the Smart Contract
+# # Prototype of System
+# ![Prototype](./1.png)
 
-# In[1]:
+# # High-Level Software Interactions
+# ![Image](./2.png)
+
+# # Program Flowchart
+# <img src="./3.png" height=600>
+
+# ## Set up Environment and Load the Contract from Memory
+# Our setup consists of:
+# - Importing all required packages
+# - Loading the environment variables from ```.env```
+# - Setting the paths for GE files
+# - Loading the deployed contract into memory
+
+# In[2]:
 
 
 # web3.../deploy.py
 import json
 from web3 import Web3
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 import os
+from dateutil.parser import parse
 
 # load from .env file
-load_dotenv()
+load_dotenv(find_dotenv())
+
+import hashlib
+
+# Constants
+LOG_TXT_PATH = 'logfiles/workstationLog.txt'
+DEVICE_XML_PATH = 'logfiles/Device.xml'
+MAKO_TCW_PATH = 'logfiles/makoTest2.tcw'
+
+# Run module to load contract
+get_ipython().run_line_magic('run', './loadContract.py')
 
 
-# In[2]:
+# ## Query Blockchain and Log File to Compare Hashes
+# The following functions are used to generate the hash of the stored configuration file and comparing it with the hash that is stored on-chain. Here are the steps involved:
+# 1. Query the on-chain hash of the specified log file
+# 2. Generate the hash of the file that is on our local filesystem
+# 3. Compare the two:
+#     - If they are the same, no action is taken
+#     - If they differ, a new block is appended to the chain with the updated hash and other metadata
+#         - Includes time configuration was changed and computer/user ID of person who changed it
+
+# In[ ]:
 
 
-# Save compiled code to JSON file
-with open("compiled_code.json", "r") as file:
-    contractInfo = json.load(file)
-    
-# Deploy file Prereqs
-# Get bytecode
-bytecode = contractInfo["contracts"]["HashStorage.sol"]["HashStorage"]["evm"]["bytecode"]["object"]
-
-# get abi
-abi = contractInfo["contracts"]["HashStorage.sol"]["HashStorage"]["abi"]
-
-
-# ### Step 2 - Set up Blockchain Connection
-
-# In[3]:
-
-
-w3 = Web3(
-    Web3.HTTPProvider("HTTP://127.0.0.1:7545")
-)  # Get this address from RPC provider in ganache GUI
-chain_id = 1337  # From Network ID of ganache GUI
-my_address = os.getenv("PUBLIC_KEY")  # address to deploy from - one of fake accounts in GUI
-private_key = os.getenv("PRIVATE_KEY")  # From key symbol next to account
-# print(private_key)
-### BETTER - use os.getenv("PRIVATE_KEY") where private key is stored as environment variable. Can also store in .env file
-
-
-# ### Step 3 - Deploy Smart Contract
-
-# In[4]:
-
-
-# Now we have all parameters we need to interact with Ganache local chain
-# Get latest transaction:
-nonce = w3.eth.getTransactionCount(
-    my_address
-)  # gives our nonce - number of transactions
-
-
-# ### Step 4 - Interact with Smart Contract
-
-# In[5]:
-
-
-# How do we interact and work with the contract?
-# Need
-# 1. Contract address
-# 2. Contract ABI
-contract_address = os.getenv("contract_address")
-hash_storage = w3.eth.contract(address=contract_address, abi=abi)
-# Now we can interact with our contract with a call or a transact
-# Call -> simulate making the call and getting the return value (no state change to blockchain)
-# Transact -> actually make a state change (have to build & send transaction)
-
-# initial value of hashNumber:
-print(
-    "Current value of favorite number: "
-    + str(hash_storage.functions.retrieve().call())
-)  # No state change!
-
-print("Updating contract...")
-# Store new value for hashNumber:
-store_transaction = hash_storage.functions.store("0x12332fea").build_transaction(
-    {
-        "gasPrice": w3.eth.gas_price,
-        "chainId": chain_id,
-        "from": my_address,
-        "nonce": nonce,
-    }
-)
-signed_store_tx = w3.eth.account.sign_transaction(
-    store_transaction, private_key=private_key
-)
-send_store_tx = w3.eth.send_raw_transaction(signed_store_tx.rawTransaction)
-tx_receipt = w3.eth.wait_for_transaction_receipt(send_store_tx)
-print("Updated!")
-print(
-    "New value of favorite number: " + str(hash_storage.functions.retrieve().call())
-)
+def fileParser(file):
+    # Gather pertinent info from log file
+    computer_name = None
+    config_pushed = False
+    config_complete = None
+    with open(file, 'r') as file:
+        for line in file.readlines():
+            # print(line)
+            # Extract computer name
+            if 'desktop' in line.lower() and '.' not in line:
+                computer_name = line.split(' ')[-1]
+            if 'starting publish' in line.lower():
+                pass# print(line)
+            if 'download complete' in line.lower():
+                # print(line)
+                config_pushed = True
+                config_complete = parse(line[:line.index(',')])
+    if computer_name and config_pushed:          
+        # print('Computer name: ' + computer_name)
+        # print('Configuration changed on: ' + str(config_complete))
+        return computer_name, str(config_complete)
 
 
 # In[ ]:
 
 
+# Read file in chunks (future-proofing) and generate hash:
+def hashGenerator(file, buffer_size = 65536):
+    """
+    This function reads a given file in chunks and generates a corresponding
+    SHA256 hash.
 
+    Parameters
+    ----------
+    file : type 'str'
+        relative path to file to hash
+    buffer_size : {65536, 'other'}, optional
+        number of bytes to read, by default 65536
+
+    Returns
+    -------
+    file_hash
+        the SHA256 hash of the file provided
+
+    Raises
+    ------
+    N/A
+    """
+    file_hash = hashlib.sha256()
+    # Read file as binary
+    with open(file, 'rb') as f:
+        chunk = f.read(buffer_size)
+        # Keep reading and updating hash as long as there is more data:
+        while len(chunk) > 0:
+            file_hash.update(chunk)
+            chunk = f.read(buffer_size)
+    return file_hash
+
+
+# In[ ]:
+
+
+# Function to update blockchain
+def updateBlockChain(new_hash, date, computer_id):
+    """
+    This function updates the blockchain by calling the 'store' function of the
+    smart contract.
+
+    Parameters
+    ----------
+    new_hash : type 'str'
+        hash of file obtained from hashGenerator function
+    date : type 'str'
+        date the configuration was changed
+    computer_id : type 'str'
+        ID of the computer/user. Found in the top line of the log file
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    N/A
+    """
+    print("Updating contract...")
+
+    # Get latest transaction:
+    nonce = w3.eth.getTransactionCount(
+        my_address
+    )  # gives our nonce - number of transactions
+    # Store new value for hashNumber:
+    store_transaction = hash_storage.functions.addHash(date, new_hash, computer_id).build_transaction(
+        {
+            "gasPrice": w3.eth.gas_price,
+            "chainId": chain_id,
+            "from": my_address,
+            "nonce": nonce,
+        }
+    )
+    signed_store_tx = w3.eth.account.sign_transaction(
+        store_transaction, private_key=private_key
+    )
+    send_store_tx = w3.eth.send_raw_transaction(signed_store_tx.rawTransaction)
+    tx_receipt = w3.eth.wait_for_transaction_receipt(send_store_tx)
+    print("Updated!")
+    print(
+        "New value of hash: " + hash_storage.functions.retrieve().call()[1]
+    )
+
+
+# In[ ]:
+
+
+# Query the hash stored on the blockchain
+on_chain_hash = hash_storage.functions.retrieve().call()[1]
+print('On-chain hash: {}'.format(on_chain_hash))
+# Generate the hash of the log file
+device_hash = '0x' + hashGenerator(DEVICE_XML_PATH).hexdigest()
+print('Local hash: {}'.format(device_hash))
+# compare the two - if different, update the blockchain!
+if on_chain_hash != device_hash:
+    # Gather metadata:
+    computer_id, date_changed = fileParser(LOG_TXT_PATH)
+    # Update blockchain
+    updateBlockChain(date_changed, device_hash, computer_id)
+else:
+    print('No change detected. Exiting program.')
+
+
+# In[ ]:
+
+
+tx = w3.eth.get_transaction('0x26da2a7dc4807d57292b401f3a7694c2b531049da7f476d2792ade3a11256b51')
+
+
+# In[ ]:
+
+
+obj, params = hash_storage.decode_function_input(tx['input'])
+
+
+# In[ ]:
+
+
+obj
+
+
+# In[ ]:
+
+
+params
 
