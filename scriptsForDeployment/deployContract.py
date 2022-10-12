@@ -6,7 +6,7 @@
 
 # ### Step 1 - Build the Smart Contract
 
-# In[1]:
+# In[ ]:
 
 
 # web3.../deploy.py
@@ -54,7 +54,7 @@ abi = compiled_sol["contracts"]["HashStorage.sol"]["HashStorage"]["abi"]
 
 # ### Step 2 - Set up Blockchain Connection
 
-# In[2]:
+# In[ ]:
 
 
 w3 = Web3(
@@ -69,7 +69,7 @@ private_key = os.getenv("PRIVATE_KEY")  # From key symbol next to account
 
 # ### Step 3 - Deploy Smart Contract
 
-# In[3]:
+# In[ ]:
 
 
 # Now we have all parameters we need to interact with Ganache local chain
@@ -105,7 +105,7 @@ print("Deployed!")
 
 # ### Step 4 - Update .env File with New Contract Address
 
-# In[6]:
+# In[ ]:
 
 
 file_lines = []
@@ -117,10 +117,4 @@ with open('.env', 'w') as file:
     for line in file_lines:
         file.write(line)
     file.write('contract_address=' + contract_address)
-
-
-# In[ ]:
-
-
-
 

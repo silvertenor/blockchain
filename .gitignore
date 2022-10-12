@@ -1,2 +1,5 @@
 .ipynb_checkpoints
 __pychache__
+.priv
+.pub
+.DS_Store
