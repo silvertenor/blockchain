@@ -8,6 +8,7 @@ contract HashStorage {
         string time;
         string hashNumber;
         string userID;
+        string previousTx;
     }
 
     Hash hash;
@@ -18,9 +19,10 @@ contract HashStorage {
     function addHash(
         string memory _time,
         string memory _hashNumber,
-        string memory _userID
+        string memory _userID,
+        string memory _previousTx
     ) public {
-        hash = Hash(_time, _hashNumber, _userID);
+        hash = Hash(_time, _hashNumber, _userID, _previousTx);
         idToHash[_userID] = _hashNumber; //use time to get hash
         idToTime[_userID] = _time;
     }
@@ -30,7 +32,15 @@ contract HashStorage {
         hash.time = _time;
     }
 
-    function retrieve() public view returns (string memory, string memory) {
-        return (hash.hashNumber, hash.time);
+    function retrieve()
+        public
+        view
+        returns (
+            string memory,
+            string memory,
+            string memory
+        )
+    {
+        return (hash.hashNumber, hash.time, hash.userID);
     }
 }
