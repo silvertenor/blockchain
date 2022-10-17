@@ -1,7 +1,7 @@
 import sys
 import os
 import time
-from PyQt6.QtWidgets import QLineEdit, QApplication, QWidget, QLineEdit, QPushButton, QLabel, QGridLayout, QSizePolicy
+from PyQt6.QtWidgets import QApplication, QLineEdit, QWidget, QGridLayout, QLabel, QPushButton
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
 from PyQt6.QtSql import QSqlDatabase, QSqlQuery
