@@ -36,9 +36,10 @@ contract HashStorage {
         returns (
             string memory,
             string memory,
+            string memory,
             string memory
         )
     {
-        return (hash.hashNumber, hash.time, hash.userID);
+        return (hash.hashNumber, hash.time, hash.userID, hash.previousTx);
     }
 }
