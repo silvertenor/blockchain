@@ -3,22 +3,19 @@
 pragma solidity 0.6.0;
 
 contract HashStorage {
-    // Creates structure to hold information from configuration (xml) file
     struct Hash {
+        // assosiate date/time with hash number
         string time;
         string hashNumber;
         string userID;
         string previousTx;
     }
 
-    Hash hash; // Creates a structure Hash called hash
+    Hash hash;
 
-    // Initiate mapping to use computer ID to find date/time and configuration hash
-    mapping(string => string) public idToHash;
+    mapping(string => string) public idToHash; //used to map id to hash, so you can get hash using time
     mapping(string => string) public idToTime;
 
-    // This function adds values to a structure hash,
-    // that includes time of change, hash of configuration file, and computer ID
     function addHash(
         string memory _time,
         string memory _hashNumber,
