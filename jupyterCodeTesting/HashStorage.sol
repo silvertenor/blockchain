@@ -23,20 +23,22 @@ contract HashStorage {
         string memory _previousTx
     ) public {
         hash = Hash(_time, _hashNumber, _userID, _previousTx);
-        idToHash[_userID] = _hashNumber; //use time to get hash
+        // Will be used in the future to find hash of configuration file
+        // and time of change from a specific user
+        idToHash[_userID] = _hashNumber;
         idToTime[_userID] = _time;
     }
 
+    // Retrieves the hash number and time of change when called within Python script
     function retrieve()
         public
         view
         returns (
             string memory,
             string memory,
-            string memory,
             string memory
         )
     {
-        return (hash.hashNumber, hash.time, hash.userID, hash.previousTx);
+        return (hash.hashNumber, hash.time, hash.userID);
     }
 }
