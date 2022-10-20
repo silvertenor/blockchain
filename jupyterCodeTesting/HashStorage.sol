@@ -8,6 +8,7 @@ contract HashStorage {
         string time;
         string hashNumber;
         string userID;
+        string previousTx;
     }
 
     Hash hash; // Creates a structure Hash called hash
@@ -21,9 +22,10 @@ contract HashStorage {
     function addHash(
         string memory _time,
         string memory _hashNumber,
-        string memory _userID
+        string memory _userID,
+        string memory _previousTx
     ) public {
-        hash = Hash(_time, _hashNumber, _userID);
+        hash = Hash(_time, _hashNumber, _userID, _previousTx);
         // Will be used in the future to find hash of configuration file
         // and time of change from a specific user
         idToHash[_userID] = _hashNumber;
@@ -31,7 +33,15 @@ contract HashStorage {
     }
 
     // Retrieves the hash number and time of change when called within Python script
-    function retrieve() public view returns (string memory, string memory) {
-        return (hash.hashNumber, hash.time);
+    function retrieve()
+        public
+        view
+        returns (
+            string memory,
+            string memory,
+            string memory
+        )
+    {
+        return (hash.hashNumber, hash.time, hash.userID);
     }
 }
