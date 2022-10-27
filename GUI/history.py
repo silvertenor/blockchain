@@ -53,12 +53,12 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def queryChain(self):
-        pvsTx = hash_storage.functions.retrieve().call()[3]
+        pvsTx = dtContract.functions.retrieve().call()[3]
         history = []
         while pvsTx:
             tx = w3.eth.get_transaction(pvsTx)
             try:
-                obj, params = hash_storage.decode_function_input(tx["input"])
+                obj, params = dtContract.decode_function_input(tx["input"])
                 print(params)
                 params["_time"] = decrypt(params["_time"])
                 params["_userID"] = decrypt(params["_userID"])

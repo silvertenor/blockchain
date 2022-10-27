@@ -23,12 +23,12 @@ with open("./compiled_code.json", "r") as file:
 
 # Deploy file Prereqs
 # Get bytecode
-bytecode = contractInfo["contracts"]["HashStorage.sol"]["HashStorage"]["evm"][
+bytecode = contractInfo["contracts"]["DataTracker.sol"]["DataTracker"]["evm"][
     "bytecode"
 ]["object"]
 
 # get abi
-abi = contractInfo["contracts"]["HashStorage.sol"]["HashStorage"]["abi"]
+abi = contractInfo["contracts"]["DataTracker.sol"]["DataTracker"]["abi"]
 w3 = Web3(
     Web3.HTTPProvider("HTTP://127.0.0.1:7545")
 )  # Get this address from RPC provider in ganache GUI
@@ -38,7 +38,7 @@ my_address = os.getenv(
 )  # address to deploy from - one of fake accounts in GUI
 private_key = os.getenv("PRIVATE_KEY")  # From key symbol next to account
 contract_address = os.getenv("contract_address")  # our contract's address
-hash_storage = w3.eth.contract(address=contract_address, abi=abi)  # our contract
+dtContract = w3.eth.contract(address=contract_address, abi=abi)  # our contract
 
 
 def fileParser(file):
@@ -126,7 +126,7 @@ def updateBlockChain(date, new_hash, computer_id, pvsTx):
         my_address
     )  # gives our nonce - number of transactions
     # Store new value for hashNumber:
-    store_transaction = hash_storage.functions.addHash(
+    store_transaction = dtContract.functions.addConfig(
         date, new_hash, computer_id, pvsTx
     ).build_transaction(
         {
@@ -142,7 +142,7 @@ def updateBlockChain(date, new_hash, computer_id, pvsTx):
     send_store_tx = w3.eth.send_raw_transaction(signed_store_tx.rawTransaction)
     tx_receipt = w3.eth.wait_for_transaction_receipt(send_store_tx)
     print("Updated!")
-    print("New value of hash: " + hash_storage.functions.retrieve().call()[0])
+    print("New value of hash: " + dtContract.functions.retrieve().call()[0])
 
 
 def encrypt(paramToEncrypt):
