@@ -32,24 +32,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.table = QtWidgets.QTableView()
         # backend code here
-        # Query the hash stored on the blockchain
-        on_chain_hash = hash_storage.functions.retrieve().call()[0]
-        print('On-chain hash: {}'.format(on_chain_hash))
-        # Generate the hash of the log file
-        device_hash = '0x' + hashGenerator(DEVICE_XML_PATH).hexdigest()
-        print('Local hash: {}'.format(device_hash))
-        # compare the two - if different, update the blockchain!
-        if on_chain_hash != device_hash:
-            # Gather metadata:
-            computer_id, date_changed = fileParser(LOG_TXT_PATH)
-            # Get previous tx hash
-            previousTxHash = w3.eth.get_block('latest')['transactions'][0].hex()
-            # Encrypt the metadata before updating the chain
-            computer_id, date_changed = encrypt(computer_id), encrypt(date_changed)
-            # Update blockchain
-            updateBlockChain(date_changed, device_hash, computer_id, previousTxHash)
-        else:
-            print('No change detected. Exiting program.')
+        
         pvsTx = hash_storage.functions.retrieve().call()[3]
         history = []
         while pvsTx:
@@ -59,7 +42,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 params['_time'] = decrypt(params['_time'])
                 params['_userID'] = decrypt(params['_userID'])
                 pvsTx = params['_previousTx']
-                print(params)
                 history.append(params)
             except:
                 pvsTx = False     
