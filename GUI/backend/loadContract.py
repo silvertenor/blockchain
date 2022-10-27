@@ -154,6 +154,6 @@ def decrypt(paramToDecrypt):
         key = mykey.read()
         
     f = Fernet(key)
-    decryptedParam = f.decrypt(paramToDecrypt).decode()
+    decryptedParam = f.decrypt(bytes(paramToDecrypt, 'utf-8')).decode()
     return decryptedParam
     
