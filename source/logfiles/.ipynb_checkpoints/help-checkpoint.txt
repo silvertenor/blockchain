@@ -1,0 +1,11 @@
+hostname, user, domain
+7/4/2022 5:49:09 PM, Info, Downloading application code to workstation-0 WorkstationST computer.
+7/4/2022 5:48:58 PM, Info, Completed publish to EGD Config Server with 0 errors and 0 warnings.
+7/4/2022 5:48:57 PM, Info, Beginning build of IEC61850 protocol
+
+XML
+ProductVersion="V07.00.00B" 
+
+
+TCW
+<SystemConfig CustomerName="" Site=""
