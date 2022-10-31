@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import (
 
 import modules.history as hist
 
-
+# Our table - based on pandas DF
 class TableModel(QAbstractTableModel):
     def __init__(self, data):
         super(TableModel, self).__init__()
@@ -39,37 +39,49 @@ class TableModel(QAbstractTableModel):
                 return str(self._data.index[section])
 
 
+# Our window
 class MainWindow(QMainWindow):
     def __init__(self):
+        # initialize parent model
         super().__init__()
 
-        self.setWindowTitle("Widgets App")
+        # set title
+        self.setWindowTitle("GEthereum")
 
-        self.table = QTableView()
         layout = QVBoxLayout()
+        widgets = [QLabel]  # our widgets
+        # initialize our variables
+        self.table = QTableView()
+        button = QPushButton("Query Chain")
+        # Gather our blockchain data
+        # data = self.getData()
 
-        widgets = [QLabel, QPushButton]
-        data = self.getData()
-        self.model = TableModel(data)
-        self.table.setModel(self.model)
-
+        # set up our display
         for w in widgets:
             layout.addWidget(w())
         layout.addWidget(self.table)
+        layout.addWidget(button)
         widget = QWidget()
         widget.setLayout(layout)
+        # Force screen to maximize
         self.showMaximized()
-        width = self.frameGeometry().width()
+        # Equally space out the columns in our table
+        button.setCheckable = True
+        button.clicked.connect(lambda: self.getData())
 
-        for i in range(0, data.shape[1]):
-            self.table.setColumnWidth(i, width // data.shape[1])
         # Set the central widget of the Window. Widget will expand
         # to take up all the space in the window by default.
         self.setCentralWidget(widget)
 
     # Function to get data
     def getData(self):
-        return hist.getHistory()
+        # Update table
+        data = hist.getHistory()
+        self.model = TableModel(data)
+        self.table.setModel(self.model)
+        width = self.frameGeometry().width()
+        for i in range(0, data.shape[1]):
+            self.table.setColumnWidth(i, width // data.shape[1])
 
 
 app = QApplication([])

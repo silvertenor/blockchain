@@ -134,36 +134,37 @@ def decrypt(paramToDecrypt):
     return decryptedParam
 
 
-# Query the hash stored on the blockchain
-on_chain_hash = dtContract.functions.retrieve().call()[0]
-print("On-chain hash: {}".format(on_chain_hash))
-# Generate the hash of the log file
-device_hash = "0x" + hashGenerator(DEVICE_XML_PATH).hexdigest()
-print("Local hash: {}".format(device_hash))
-# compare the two - if different, update the blockchain!
-if on_chain_hash != device_hash:
-    # Gather metadata:
-    computer_id, date_changed = fileParser(LOG_TXT_PATH)
-    # Get previous tx hash
-    previousTxHash = w3.eth.get_block("latest")["transactions"][0].hex()
-    # Encrypt the metadata before updating the chain
-    computer_id, date_changed = encrypt(computer_id), encrypt(date_changed)
-    # Update blockchain
-    updateBlockChain(date_changed, device_hash, computer_id, previousTxHash)
-else:
-    print("No change detected. Exiting program.")
-
-# ONLY RUN THIS FOR DEMO PURPOSES
-computer_id, date_changed = fileParser(LOG_TXT_PATH)
-# Encrypt the metadata before updating the chain
-computer_id, date_changed = encrypt(computer_id), encrypt(date_changed)
-blockNum = w3.eth.block_number
-for i in range(blockNum, 0, -1):
-    toContract = w3.eth.get_transaction_by_block(i, 0)["to"]
-    if toContract == dtContract.address:
+def chainChecker():
+    # Query the hash stored on the blockchain
+    on_chain_hash = dtContract.functions.retrieve().call()[0]
+    print("On-chain hash: {}".format(on_chain_hash))
+    # Generate the hash of the log file
+    device_hash = "0x" + hashGenerator(DEVICE_XML_PATH).hexdigest()
+    print("Local hash: {}".format(device_hash))
+    # compare the two - if different, update the blockchain!
+    if on_chain_hash != device_hash:
+        # Gather metadata:
+        computer_id, date_changed = fileParser(LOG_TXT_PATH)
         # Get previous tx hash
-        previousTxHash = w3.eth.get_block(i)["transactions"][0].hex()
-
+        previousTxHash = w3.eth.get_block("latest")["transactions"][0].hex()
+        # Encrypt the metadata before updating the chain
+        computer_id, date_changed = encrypt(computer_id), encrypt(date_changed)
         # Update blockchain
         updateBlockChain(date_changed, device_hash, computer_id, previousTxHash)
-        break
+    else:
+        print("No change detected. Exiting program.")
+
+    # ONLY RUN THIS FOR DEMO PURPOSES
+    computer_id, date_changed = fileParser(LOG_TXT_PATH)
+    # Encrypt the metadata before updating the chain
+    computer_id, date_changed = encrypt(computer_id), encrypt(date_changed)
+    blockNum = w3.eth.block_number
+    for i in range(blockNum, 0, -1):
+        toContract = w3.eth.get_transaction_by_block(i, 0)["to"]
+        if toContract == dtContract.address:
+            # Get previous tx hash
+            previousTxHash = w3.eth.get_block(i)["transactions"][0].hex()
+
+            # Update blockchain
+            updateBlockChain(date_changed, device_hash, computer_id, previousTxHash)
+            break

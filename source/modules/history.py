@@ -1,9 +1,10 @@
 from .loadContract import *
-from .updateChain import decrypt
+from .updateChain import decrypt, chainChecker
 import pandas as pd
 
 
 def getHistory():
+    chainChecker()
     pvsTx = dtContract.functions.retrieve().call()[3]
     history = []
     while pvsTx:
