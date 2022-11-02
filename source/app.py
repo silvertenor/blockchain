@@ -59,8 +59,9 @@ class MainWindow(QMainWindow):
         # set up our display
         for w in widgets:
             layout.addWidget(w())
-        layout.addWidget(self.table)
         layout.addWidget(button)
+        layout.addWidget(self.table)
+
         widget = QWidget()
         widget.setLayout(layout)
         # Force screen to maximize
