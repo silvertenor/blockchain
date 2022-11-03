@@ -41,5 +41,5 @@ def getHistory():
         },
         inplace=True,
     )
-    print(df)
+    # print(df)
     return df
