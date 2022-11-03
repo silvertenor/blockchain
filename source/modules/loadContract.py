@@ -12,7 +12,10 @@ bytecode = contractInfo["contracts"]["DataTracker.sol"]["DataTracker"]["evm"][
 
 # get abi and load contract into memory
 abi = contractInfo["contracts"]["DataTracker.sol"]["DataTracker"]["abi"]
+os.environ["abi"] = json.dumps(abi)
 try:
-    dtContract = w3.eth.contract(address=contract_address, abi=abi)  # our contract
+    dtContract = w3.eth.contract(
+        address=os.environ["contract_address"], abi=abi
+    )  # our contract
 except Exception as e:
     print(e)

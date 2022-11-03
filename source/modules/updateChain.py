@@ -2,7 +2,7 @@ from dateutil.parser import parse
 import hashlib
 from .loadContract import *
 from cryptography.fernet import Fernet
-import pandas as pd
+import os, socket
 
 # Constants
 LOG_TXT_PATH = "./source/logfiles/workstationLog.txt"
@@ -12,25 +12,21 @@ MAKO_TCW_PATH = "./source/logfiles/makoTest2.tcw"
 
 def fileParser(file):
     # Gather pertinent info from log file
-    computer_name = None
     config_pushed = False
     config_complete = None
     with open(file, "r") as file:
         for line in file.readlines():
             # print(line)
-            # Extract computer name
-            if "desktop" in line.lower() and "." not in line:
-                computer_name = line.split(" ")[-1][:-1]
             if "starting publish" in line.lower():
                 pass  # print(line)
             if "download complete" in line.lower():
                 # print(line)
                 config_pushed = True
                 config_complete = parse(line[: line.index(",")])
-    if computer_name and config_pushed:
+    if config_pushed:
         # print('Computer name: ' + computer_name)
         # print('Configuration changed on: ' + str(config_complete))
-        return computer_name, str(config_complete)
+        return str(config_complete)
 
 
 # Read file in chunks (future-proofing) and generate hash:
@@ -67,19 +63,14 @@ def hashGenerator(file, buffer_size=65536):
 
 
 # Function to update blockchain
-def updateBlockChain(date, new_hash, computer_id, pvsTx):
+def updateBlockChain(contract, *args):
     """
     This function updates the blockchain by calling the 'store' function of the
     smart contract.
 
     Parameters
     ----------
-    new_hash : type 'str'
-        hash of file obtained from hashGenerator function
-    date : type 'str'
-        date the configuration was changed
-    computer_id : type 'str'
-        ID of the computer/user. Found in the top line of the log file
+    *args - a tuple of arguments to be inserted into struct stored on chain
     Returns
     -------
     None
@@ -88,33 +79,54 @@ def updateBlockChain(date, new_hash, computer_id, pvsTx):
     ------
     N/A
     """
-    print("Updating contract...")
+    # print("Updating contract...")
 
     # Get latest transaction:
     nonce = w3.eth.getTransactionCount(
-        my_address
+        os.environ["my_address"]
     )  # gives our nonce - number of transactions
     # Store new value for hashNumber:
-    store_transaction = dtContract.functions.addConfig(
-        date, new_hash, computer_id, pvsTx
-    ).build_transaction(
+
+    store_transaction = contract.functions.addConfig(*args).build_transaction(
         {
             "gasPrice": w3.eth.gas_price,
             "chainId": chain_id,
-            "from": my_address,
+            "from": os.environ["my_address"],
             "nonce": nonce,
         }
     )
+    # Sign transaction
     signed_store_tx = w3.eth.account.sign_transaction(
         store_transaction, private_key=private_key
     )
+    # Send transaction
     send_store_tx = w3.eth.send_raw_transaction(signed_store_tx.rawTransaction)
+    # Wait for receipt
     tx_receipt = w3.eth.wait_for_transaction_receipt(send_store_tx)
-    print("Updated!")
-    print("New value of hash: " + dtContract.functions.retrieve().call()[0])
+    # print(tx_receipt)
+    # print("Updated!")
+    # print("New value of hash: " + dtContract.functions.retrieve().call()[0])
 
 
 def encrypt(paramToEncrypt):
+    """
+    This function uses a stored secret key to encrypt a string and return it
+    to the calling function so values can be safely added to the chain.
+
+    Parameters
+    ----------
+    paramToEncrypt : type 'str'
+        parameter to encrypt
+
+    Returns
+    -------
+    encryptedParam
+        the encrypted parameter
+
+    Raises
+    ------
+    N/A
+    """
     # Read the key
     with open("./source/secrets/mykey.key", "rb") as mykey:
         key = mykey.read()
@@ -125,6 +137,24 @@ def encrypt(paramToEncrypt):
 
 
 def decrypt(paramToDecrypt):
+    """
+    This function uses a stored secret key to decrypt a string and return it
+    to the calling function so values can be read into the GUI.
+
+    Parameters
+    ----------
+    paramToDecrypt : type 'str'
+        parameter to decrypt
+
+    Returns
+    -------
+    encryptedParam
+        the encrypted parameter
+
+    Raises
+    ------
+    N/A
+    """
     # Read the key
     with open("./source/secrets/mykey.key", "rb") as mykey:
         key = mykey.read()
@@ -135,7 +165,27 @@ def decrypt(paramToDecrypt):
 
 
 def chainChecker():
+    """
+    This function checks the on-chain hash of the Device.xml file and compares it
+    to what is on the local filesystem. If they are different, a change has been
+    made and the blockchain should be updated. If they are the same, nothing will
+    happen.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
+    Raises
+    ------
+    N/A
+    """
     # Query the hash stored on the blockchain
+    dtContract = w3.eth.contract(
+        address=os.environ["contract_address"], abi=json.loads(os.environ["abi"])
+    )
+    print("loaded addr: " + dtContract.address)
     on_chain_hash = dtContract.functions.retrieve().call()[0]
     print("On-chain hash: {}".format(on_chain_hash))
     # Generate the hash of the log file
@@ -143,21 +193,44 @@ def chainChecker():
     print("Local hash: {}".format(device_hash))
     # compare the two - if different, update the blockchain!
     if on_chain_hash != device_hash:
-        print("DIFFERENCE DETECTED")
+        # print("DIFFERENCE DETECTED")
         # Gather metadata:
-        computer_id, date_changed = fileParser(LOG_TXT_PATH)
+        user, domain, date_changed = (
+            os.environ.get("USER"),  # logged in user
+            socket.gethostname(),  # Domain of user
+            fileParser(LOG_TXT_PATH),
+        )
         # Encrypt the metadata before updating the chain
-        computer_id, date_changed = encrypt(computer_id), encrypt(date_changed)
+        user, domain, date_changed = (
+            encrypt(user),
+            encrypt(domain),
+            encrypt(date_changed),
+        )
         # Update blockchain
         blockNum = w3.eth.block_number
         for i in range(blockNum, 0, -1):
             toContract = w3.eth.get_transaction_by_block(i, 0)["to"]
+            # If our contract already has been modified
             if toContract == dtContract.address:
                 # Get previous tx hash
                 previousTxHash = w3.eth.get_block(i)["transactions"][0].hex()
-
+                # print(previousTxHash)
+                print("Updating Chain")
                 # Update blockchain
-                updateBlockChain(date_changed, device_hash, computer_id, previousTxHash)
+                updateBlockChain(
+                    dtContract, date_changed, device_hash, user, domain, previousTxHash
+                )
+                print("Updated")
                 break
-    else:
-        print("No change detected. Exiting program.")
+            else:  # If our contract is brand new
+                # Random Tx value to not break program
+                previousTxHash = w3.eth.get_block("latest")["transactions"][0].hex()
+                print("Updating Chain")
+                # Update blockchain
+                updateBlockChain(
+                    dtContract, date_changed, device_hash, user, domain, previousTxHash
+                )
+                print("Updated")
+                break
+    # else:
+    #     # print("No change detected. Exiting program.")

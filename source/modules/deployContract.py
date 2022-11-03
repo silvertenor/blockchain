@@ -1,13 +1,19 @@
-from environmentSetup import *
+from .environmentSetup import *
+from .updateChain import *
+from .history import *
+
 # Time the notebook
 import datetime
+
 start = datetime.datetime.now()
+import importlib
 
 # web3.../deploy.py
 from solcx import compile_standard, install_solc
 
 # Install solc compiler
 install_solc("0.6.0")
+
 
 def compileSolFile():
     with open("./source/DataTracker.sol", "r") as file:
@@ -34,19 +40,23 @@ def compileSolFile():
 
     # Deploy file Prereqs
     # Get bytecode
-    bytecode = compiled_sol["contracts"]["DataTracker.sol"]["DataTracker"]["evm"]["bytecode"]["object"]
+    bytecode = compiled_sol["contracts"]["DataTracker.sol"]["DataTracker"]["evm"][
+        "bytecode"
+    ]["object"]
 
     # get abi
     abi = compiled_sol["contracts"]["DataTracker.sol"]["DataTracker"]["abi"]
+    os.environ["abi"] = json.dumps(abi)
 
     return bytecode, abi
+
 
 def deployContract(bytecode, abi):
     # Now we have all parameters we need to interact with Ganache local chain
     dtContract = w3.eth.contract(abi=abi, bytecode=bytecode)  # This is our contract
     # Get latest transaction:
     nonce = w3.eth.getTransactionCount(
-        my_address
+        os.environ["my_address"]
     )  # gives our nonce - number of transactions
     # print(nonce)
     # 1. Build a transacton
@@ -56,7 +66,7 @@ def deployContract(bytecode, abi):
         {
             "gasPrice": w3.eth.gas_price,
             "chainId": chain_id,
-            "from": my_address,
+            "from": os.environ["my_address"],
             "nonce": nonce,
         }
     )
@@ -69,29 +79,25 @@ def deployContract(bytecode, abi):
     # Wait for block confirmation:
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     # Get address of smart contract:
-    contract_address = tx_receipt.contractAddress
+    os.environ["contract_address"] = tx_receipt.contractAddress
     print("Deployed!")
 
-    return contract_address
+    return os.environ["contract_address"]
+
 
 def updateEnv(contract_address):
     file_lines = []
-    with open('./.env', 'r') as file:
-        for line in file:
-            if 'contract_address' not in line.lower():
-                if '\n' not in line:
-                    line += '\n'
-                file_lines.append(line)
-    with open('./.env', 'w') as file:
-        for line in file_lines:
-            file.writelines(line)
-        file.writelines('contract_address=' + contract_address)
+    set_key("./.env", "CONTRACT_ADDRESS", contract_address)
 
 
 # Entry point
-bytecode, abi = compileSolFile()
-contractAdd = deployContract(bytecode, abi)
-updateEnv(contractAdd)
+def main():
+    print("In main")
+    bytecode, abi = compileSolFile()
+    contractAdd = deployContract(bytecode, abi)
+    updateEnv(contractAdd)
+    chainChecker()
+
 
 end = datetime.datetime.now()
-print('Total execution time: {}'.format(str(end-start)))
+print("Total execution time: {}".format(str(end - start)))

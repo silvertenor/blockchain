@@ -10,8 +10,10 @@ from PyQt6.QtWidgets import (
     QApplication,
 )
 
+# Import custom module
 import modules.history as hist
 import modules.configPush as conf
+import modules.deployContract as dc
 
 # Our table - based on pandas DF
 class TableModel(QAbstractTableModel):
@@ -46,38 +48,36 @@ class MainWindow(QMainWindow):
         # initialize parent model
         super().__init__()
 
-        # set title
+        # set up our UI
         self.setWindowTitle("GEthereum")
-        title = QLabel("GEthereum")
+        title = QLabel("GEthereum Main Window")
         layout = QVBoxLayout()
         widgets = [QLabel]  # our widgets
-        # initialize our variables
+        # initialize our labels/buttons/tables
         self.table = QTableView()
         queryButton = QPushButton("Query Chain")
         configPushButton = QPushButton("Publish New Configuration")
         deployButton = QPushButton("Deploy Contract")
-        # Gather our blockchain data
-        # data = self.getData()
 
-        # set up our display
+        # set up our display's layout
         for w in widgets:
             layout.addWidget(w())
         layout.addWidget(title)
         layout.addWidget(configPushButton)
         layout.addWidget(queryButton)
         layout.addWidget(deployButton)
-
         layout.addWidget(self.table)
-
         widget = QWidget()
-        widget.setLayout(layout)
+        widget.setLayout(layout)  # apply layout to our widget
         # Force screen to maximize
         self.showMaximized()
-        # Equally space out the columns in our table
+        # Define backend functions for our buttons when pushed
         queryButton.setCheckable = True
         queryButton.clicked.connect(lambda: self.getData())
         configPushButton.setCheckable = True
         configPushButton.clicked.connect(lambda: self.pushConfig())
+        deployButton.setCheckable = True
+        deployButton.clicked.connect(lambda: self.updateContract())
 
         # Set the central widget of the Window. Widget will expand
         # to take up all the space in the window by default.
@@ -85,17 +85,30 @@ class MainWindow(QMainWindow):
 
     # Function to push config
     def pushConfig(self):
+        # Call function to place random garbage IP's in XML File
         conf.changeFile()
+        # Update the blockchain
+        conf.updateChain()
+        # Update the table
+        self.getData()
 
     # Function to get data
     def getData(self):
-        # Update table
+        # Update table data
         data = hist.getHistory()
+        # Refresh table view
         self.model = TableModel(data)
         self.table.setModel(self.model)
         width = self.frameGeometry().width()
         for i in range(0, data.shape[1]):
             self.table.setColumnWidth(i, width // data.shape[1])
+
+    # Function to update contract
+    def updateContract(self):
+        # call function to deploy new contract
+        dc.main()
+        # Update table
+        self.getData()
 
 
 app = QApplication([])
