@@ -77,9 +77,10 @@ contract DataTracker {
 
     struct ControllerData {
         // assosiate date/time with hash number
-        string time;
+        string configChanged;
         string hashNumber;
         string userID;
+        string domain;
         string previousTx;
     }
 
@@ -89,16 +90,23 @@ contract DataTracker {
     mapping(string => string) public idToTime;
 
     function addConfig(
-        string memory _time,
+        string memory _configChanged,
         string memory _hashNumber,
         string memory _userID,
+        string memory _domain,
         string memory _previousTx
     ) public {
-        config = ControllerData(_time, _hashNumber, _userID, _previousTx);
+        config = ControllerData(
+            _configChanged,
+            _hashNumber,
+            _userID,
+            _domain,
+            _previousTx
+        );
         // Will be used in the future to find hash of configuration file
         // and time of change from a specific user
         idToHash[_userID] = _hashNumber;
-        idToTime[_userID] = _time;
+        idToTime[_userID] = _configChanged;
     }
 
     // Retrieves the hash number and time of change when called within Python script
@@ -109,13 +117,15 @@ contract DataTracker {
             string memory,
             string memory,
             string memory,
+            string memory,
             string memory
         )
     {
         return (
             config.hashNumber,
-            config.time,
+            config.configChanged,
             config.userID,
+            config.domain,
             config.previousTx
         );
     }
