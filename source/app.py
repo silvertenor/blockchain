@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (
 )
 
 import modules.history as hist
+import modules.configPush as conf
 
 # Our table - based on pandas DF
 class TableModel(QAbstractTableModel):
@@ -52,14 +53,16 @@ class MainWindow(QMainWindow):
         widgets = [QLabel]  # our widgets
         # initialize our variables
         self.table = QTableView()
-        button = QPushButton("Query Chain")
+        queryButton = QPushButton("Query Chain")
+        configPushButton = QPushButton("Publish New Configuration")
         # Gather our blockchain data
         # data = self.getData()
 
         # set up our display
         for w in widgets:
             layout.addWidget(w())
-        layout.addWidget(button)
+        layout.addWidget(configPushButton)
+        layout.addWidget(queryButton)
         layout.addWidget(self.table)
 
         widget = QWidget()
@@ -67,12 +70,18 @@ class MainWindow(QMainWindow):
         # Force screen to maximize
         self.showMaximized()
         # Equally space out the columns in our table
-        button.setCheckable = True
-        button.clicked.connect(lambda: self.getData())
+        queryButton.setCheckable = True
+        queryButton.clicked.connect(lambda: self.getData())
+        configPushButton.setCheckable = True
+        configPushButton.clicked.connect(lambda: self.pushConfig())
 
         # Set the central widget of the Window. Widget will expand
         # to take up all the space in the window by default.
         self.setCentralWidget(widget)
+
+    # Function to push config
+    def pushConfig(self):
+        conf.changeFile()
 
     # Function to get data
     def getData(self):
