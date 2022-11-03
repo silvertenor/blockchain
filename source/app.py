@@ -48,21 +48,25 @@ class MainWindow(QMainWindow):
 
         # set title
         self.setWindowTitle("GEthereum")
-
+        title = QLabel("GEthereum")
         layout = QVBoxLayout()
         widgets = [QLabel]  # our widgets
         # initialize our variables
         self.table = QTableView()
         queryButton = QPushButton("Query Chain")
         configPushButton = QPushButton("Publish New Configuration")
+        deployButton = QPushButton("Deploy Contract")
         # Gather our blockchain data
         # data = self.getData()
 
         # set up our display
         for w in widgets:
             layout.addWidget(w())
+        layout.addWidget(title)
         layout.addWidget(configPushButton)
         layout.addWidget(queryButton)
+        layout.addWidget(deployButton)
+
         layout.addWidget(self.table)
 
         widget = QWidget()
