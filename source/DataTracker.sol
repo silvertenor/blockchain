@@ -95,7 +95,7 @@ contract DataTracker {
         string memory _userID,
         string memory _domain,
         string memory _previousTx
-    ) public {
+    ) public onlyAdmins {
         config = ControllerData(
             _configChanged,
             _hashNumber,
@@ -113,6 +113,7 @@ contract DataTracker {
     function retrieve()
         public
         view
+        onlyAdmins
         returns (
             string memory,
             string memory,
