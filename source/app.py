@@ -1,14 +1,6 @@
-from PyQt6.QtCore import Qt, QAbstractTableModel
-from PyQt6.QtGui import QScreen
-from PyQt6.QtWidgets import (
-    QLabel,
-    QPushButton,
-    QVBoxLayout,
-    QWidget,
-    QMainWindow,
-    QTableView,
-    QApplication,
-)
+from PyQt6.QtCore import *
+from PyQt6.QtGui import *
+from PyQt6.QtWidgets import *
 
 # Import custom module
 import modules.history as hist
@@ -51,7 +43,9 @@ class MainWindow(QMainWindow):
         # set up our UI
         self.setWindowTitle("GEthereum")
         title = QLabel("GEthereum Main Window")
-        layout = QVBoxLayout()
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        pageLayout = QVBoxLayout()
+        buttonLayout = QHBoxLayout()
         widgets = [QLabel]  # our widgets
         # initialize our labels/buttons/tables
         self.table = QTableView()
@@ -59,16 +53,14 @@ class MainWindow(QMainWindow):
         configPushButton = QPushButton("Publish New Configuration")
         deployButton = QPushButton("Deploy Contract")
 
-        # set up our display's layout
-        for w in widgets:
-            layout.addWidget(w())
-        layout.addWidget(title)
-        layout.addWidget(configPushButton)
-        layout.addWidget(queryButton)
-        layout.addWidget(deployButton)
-        layout.addWidget(self.table)
+        pageLayout.addWidget(title)
+        pageLayout.addLayout(buttonLayout)
+        buttonLayout.addWidget(configPushButton)
+        buttonLayout.addWidget(queryButton)
+        buttonLayout.addWidget(deployButton)
+        pageLayout.addWidget(self.table)
         widget = QWidget()
-        widget.setLayout(layout)  # apply layout to our widget
+        widget.setLayout(pageLayout)  # apply layout to our widget
         # Force screen to maximize
         self.showMaximized()
         # Define backend functions for our buttons when pushed
