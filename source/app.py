@@ -146,9 +146,9 @@ class MainWindow(QMainWindow):
         # call function to deploy new contract
         try:
             dc.main()
-            logging.info("Contract deployed!")
             # Update table
             self.getData()
+            logging.info("Contract deployed and table updated!")
         except:
             logging.error(
                 (

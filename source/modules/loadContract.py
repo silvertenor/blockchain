@@ -18,4 +18,4 @@ try:
         address=os.environ["contract_address"], abi=abi
     )  # our contract
 except Exception as e:
-    print(e)
+    print("Could not load contract.")
