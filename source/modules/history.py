@@ -1,6 +1,7 @@
 from .loadContract import *
 from .updateChain import decrypt, chainChecker
 import pandas as pd
+import logging
 
 
 def getHistory():
