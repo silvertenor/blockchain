@@ -1,4 +1,4 @@
-('/Users/devinlane/Documents/research/gethereum/build/app/app.pkg',
+('/Users/devinlane/Documents/research/gethereum/build/app/GEthereum.pkg',
  {'BINARY': 1,
   'DATA': 1,
   'EXECUTABLE': 1,

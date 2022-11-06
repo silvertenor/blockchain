@@ -14,8 +14,10 @@ from solcx import compile_standard, install_solc
 # Install solc compiler
 install_solc("0.6.0")
 
+basedir = os.environ["basedir"]
 
-def compileSolFile(basedir):
+
+def compileSolFile():
     with open(os.path.join(basedir, "source", "DataTracker.sol"), "r") as file:
         dt_file = file.read()
 
@@ -85,7 +87,7 @@ def deployContract(bytecode, abi):
     return os.environ["contract_address"]
 
 
-def updateEnv(contract_address, basedir):
+def updateEnv(contract_address):
     file_lines = []
     set_key(
         os.path.join(basedir, "source", ".env"), "CONTRACT_ADDRESS", contract_address
@@ -93,12 +95,12 @@ def updateEnv(contract_address, basedir):
 
 
 # Entry point
-def main(basedir):
+def main():
     print("In main")
-    bytecode, abi = compileSolFile(basedir)
+    bytecode, abi = compileSolFile()
     contractAdd = deployContract(bytecode, abi)
-    updateEnv(contractAdd, basedir)
-    chainChecker(basedir)
+    updateEnv(contractAdd)
+    chainChecker()
 
 
 end = datetime.datetime.now()
