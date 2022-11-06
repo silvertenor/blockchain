@@ -3,8 +3,10 @@ from .updateChain import decrypt, chainChecker
 import pandas as pd
 import logging
 
+basedir = os.environ["basedir"]
 
-def getHistory(basedir):
+
+def getHistory():
     logging.info("Looking for stored contract address...")
     try:
         dtContract = w3.eth.contract(
@@ -34,9 +36,9 @@ def getHistory(basedir):
                 obj, params = dtContract.decode_function_input(tx["input"])
                 print(params)
                 # exit()
-                params["_configChanged"] = decrypt(params["_configChanged"], basedir)
-                params["_userID"] = decrypt(params["_userID"], basedir)
-                params["_domain"] = decrypt(params["_domain"], basedir)
+                params["_configChanged"] = decrypt(params["_configChanged"])
+                params["_userID"] = decrypt(params["_userID"])
+                params["_domain"] = decrypt(params["_domain"])
                 pvsTx = params["_previousTx"]
                 history.append(params)
             except:

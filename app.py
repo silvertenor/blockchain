@@ -5,7 +5,7 @@ import logging
 import os, json
 
 basedir = os.path.dirname(__file__)
-os.environ['basedir'] = basedir
+os.environ["basedir"] = basedir
 # Import custom module
 import source.modules.history as hist
 import source.modules.configPush as conf
@@ -139,9 +139,9 @@ class MainWindow(QMainWindow):
                 )
             )
             # Call function to place random garbage IP's in XML File
-            conf.changeFile(basedir)
+            conf.changeFile()
             # Update the blockchain
-            conf.updateChain(basedir)
+            conf.updateChain()
             # Update the table
             self.getData()
         except:
@@ -152,7 +152,7 @@ class MainWindow(QMainWindow):
         # Update table data
         try:
             logging.info("Querying initial state of system...")
-            data = hist.getHistory(basedir)
+            data = hist.getHistory()
             # Refresh table view
             self.model = TableModel(data)
             self.table.setModel(self.model)
@@ -169,7 +169,7 @@ class MainWindow(QMainWindow):
         # self.pageLayout.addWidget(prog_bar)
         # call function to deploy new contract
         try:
-            dc.main(basedir)
+            dc.main()
             # Update table
             self.getData()
             logging.info("Contract deployed and table updated!")

@@ -6,7 +6,7 @@ from cryptography.fernet import Fernet
 import os, socket
 from datetime import datetime
 
-
+basedir = os.environ["basedir"]
 # Read file in chunks (future-proofing) and generate hash:
 def hashGenerator(file, buffer_size=65536):
     """
@@ -86,7 +86,7 @@ def updateBlockChain(contract, *args):
     # print("New value of hash: " + dtContract.functions.retrieve().call()[0])
 
 
-def encrypt(paramToEncrypt, basedir):
+def encrypt(paramToEncrypt):
     """
     This function uses a stored secret key to encrypt a string and return it
     to the calling function so values can be safely added to the chain.
@@ -115,7 +115,7 @@ def encrypt(paramToEncrypt, basedir):
     return encryptedParam
 
 
-def decrypt(paramToDecrypt, basedir):
+def decrypt(paramToDecrypt):
     """
     This function uses a stored secret key to decrypt a string and return it
     to the calling function so values can be read into the GUI.
@@ -144,7 +144,7 @@ def decrypt(paramToDecrypt, basedir):
     return decryptedParam
 
 
-def chainChecker(basedir):
+def chainChecker():
     """
     This function checks the on-chain hash of the Device.xml file and compares it
     to what is on the local filesystem. If they are different, a change has been
@@ -187,9 +187,9 @@ def chainChecker(basedir):
         )
         # Encrypt the metadata before updating the chain
         user, domain, date_changed = (
-            encrypt(user, basedir),
-            encrypt(domain, basedir),
-            encrypt(date_changed, basedir),
+            encrypt(user),
+            encrypt(domain),
+            encrypt(date_changed),
         )
         # Update blockchain
         blockNum = w3.eth.block_number

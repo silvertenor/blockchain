@@ -5,8 +5,10 @@ import re
 import logging
 import os
 
+basedir = os.environ["basedir"]
 
-def changeFile(basedir):
+
+def changeFile():
     try:
         logging.info("Looking for XML file...")
         # Open Device.XML file and read the lines
@@ -36,5 +38,5 @@ def changeFile(basedir):
 
 
 # Function to update chain once file has been changed
-def updateChain(basedir):
-    chainChecker(basedir)
+def updateChain():
+    chainChecker()
