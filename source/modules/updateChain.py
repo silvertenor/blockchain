@@ -4,31 +4,11 @@ import hashlib
 from .loadContract import *
 from cryptography.fernet import Fernet
 import os, socket
+from datetime import datetime
 
 # Constants
-LOG_TXT_PATH = "./source/logfiles/workstationLog.txt"
 DEVICE_XML_PATH = "./source/logfiles/Device.xml"
 MAKO_TCW_PATH = "./source/logfiles/makoTest2.tcw"
-
-
-def fileParser(file):
-    # Gather pertinent info from log file
-    config_pushed = False
-    config_complete = None
-    with open(file, "r") as file:
-        for line in file.readlines():
-            # print(line)
-            if "starting publish" in line.lower():
-                pass  # print(line)
-            if "download complete" in line.lower():
-                # print(line)
-                config_pushed = True
-                config_complete = parse(line[: line.index(",")])
-    if config_pushed:
-        # print('Computer name: ' + computer_name)
-        # print('Configuration changed on: ' + str(config_complete))
-        return str(config_complete)
-
 
 # Read file in chunks (future-proofing) and generate hash:
 def hashGenerator(file, buffer_size=65536):
@@ -199,7 +179,11 @@ def chainChecker():
         user, domain, date_changed = (
             os.environ.get("USER"),  # logged in user
             socket.gethostname(),  # Domain of user
-            fileParser(LOG_TXT_PATH),
+            str(
+                datetime.fromtimestamp(os.path.getmtime(DEVICE_XML_PATH)).replace(
+                    microsecond=0
+                )
+            ),
         )
         # Encrypt the metadata before updating the chain
         user, domain, date_changed = (
