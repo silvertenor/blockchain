@@ -80,30 +80,43 @@ class MainWindow(QMainWindow):
     def __init__(self):
         # initialize parent model
         super().__init__()
-
+        self.layout = QVBoxLayout(self)
         # set up our UI
         self.setWindowTitle("GEthereum")
         title = QLabel("GEthereum Main Window")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        # Total layout of page
-        self.pageLayout = QVBoxLayout()
-        # Individual layout of buttons
+
+        self.tabs = QTabWidget()
+        self.tab1 = QWidget()
+        self.tab2 = QWidget()
+        self.tabs.addTab(self.tab1, "Tab 1")
+        self.tabs.addTab(self.tab2, "Tab 2")
+        # Total layout of pages
+        self.tab1.layout = QVBoxLayout()
+        self.tab2.layout = QVBoxLayout()
+        # Individual layout of buttons (tab 1)
         buttonLayout = QHBoxLayout()
+
+        self.createForm()
+        tab2Title = QLabel("Credential Management")
+        tab2Title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.tab2.layout.addWidget(tab2Title)
+        self.tab2.layout.addWidget(self.formGroupBox)
         # initialize our labels/buttons/tables
         queryButton = QPushButton("Query Chain")
         configPushButton = QPushButton("Publish New Configuration")
         deployButton = QPushButton("Deploy Contract")
 
         # add our widgets to each layout
-        self.pageLayout.addWidget(title)
-        self.pageLayout.addLayout(buttonLayout)
+        self.tab1.layout.addWidget(title)
+        self.tab1.layout.addLayout(buttonLayout)
         buttonLayout.addWidget(configPushButton)
         buttonLayout.addWidget(queryButton)
         buttonLayout.addWidget(deployButton)
 
         # Table view
         self.table = QTableView()
-        self.pageLayout.addWidget(self.table)
+        self.tab1.layout.addWidget(self.table)
 
         # Log view
         logBox = QTextEditLogger(self)
@@ -112,10 +125,14 @@ class MainWindow(QMainWindow):
         )
         logging.getLogger().addHandler(logBox)
         logging.getLogger().setLevel(logging.DEBUG)
-        self.pageLayout.addWidget(logBox.widget)
+        # self.tab1.pageLayout.addWidget(self.formGroupBox)
+        self.tab1.layout.addWidget(logBox.widget)
         # set our view of the page
         widget = QWidget()
-        widget.setLayout(self.pageLayout)  # apply layout to our widget
+        self.layout.addWidget(self.tabs)
+        self.tab1.setLayout(self.tab1.layout)
+        self.tab2.setLayout(self.tab2.layout)
+        widget.setLayout(self.layout)  # apply layout to our widget
         # Force screen to maximize
         self.showMaximized()
         # Define backend functions for our buttons when pushed
@@ -129,6 +146,27 @@ class MainWindow(QMainWindow):
         # Set the central widget of the Window. Widget will expand
         # to take up all the space in the window by default.
         self.setCentralWidget(widget)
+
+    # Function to create form
+    def createForm(self):
+        # Form to update environment file
+        self.formGroupBox = QGroupBox()
+        self.accountAddress = QLineEdit()
+        self.privateKey = QLineEdit()
+        self.web3Provider = QLineEdit()
+        self.chainID = QLineEdit()
+        self.contractAddress = QLineEdit()
+        layout = QFormLayout()
+        rows = {
+            "Account Address": self.accountAddress,
+            "Private Key": self.privateKey,
+            "Web3 Provider": self.web3Provider,
+            "Chain ID": self.chainID,
+            "Contract Address": self.contractAddress,
+        }
+        for row in rows:
+            layout.addRow(QLabel(row), rows[row])
+        self.formGroupBox.setLayout(layout)
 
     # Function to push config
     def pushConfig(self):
