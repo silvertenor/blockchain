@@ -2,7 +2,7 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 import logging
-import os, json, sys
+import os, json, sys, signal
 from importlib import reload
 
 basedir = os.path.dirname(__file__)
@@ -256,7 +256,11 @@ class MainWindow(QMainWindow):
             # Reload .env file
             reload(es)
             # Terminate current app
-            sys.exit(app.exec_())
+            signal.signal(signal.SIGQUIT, sigquit_handler)
+
+
+def sigquit_handler(signum, frame):
+    sys.exit(app.exec_())
 
 
 app = QApplication([])

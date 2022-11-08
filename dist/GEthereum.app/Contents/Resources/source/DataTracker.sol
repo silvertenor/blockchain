@@ -47,6 +47,7 @@ contract DataTracker {
 
     constructor() public {
         admins.add(msg.sender);
+        users.add(msg.sender);
     }
 
     function addUser(address _newUser) external onlyAdmins {
