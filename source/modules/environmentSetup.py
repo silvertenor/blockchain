@@ -7,12 +7,12 @@ import logging
 logging.info("Looking for .env file to load in variables...")
 try:
 
-    load_dotenv(os.path.join(os.environ["basedir"], "source", ".env"))
+    load_dotenv(os.path.join(os.environ["basedir"], "source", ".env"), override=True)
     # project_root = os.getenv("PROJECT_ROOT")  # To change in next step
     # os.chdir(project_root)
     # load secrets
     os.environ["my_address"] = os.getenv(
-        "PUBLIC_KEY"
+        "ACCOUNT_ADDRESS"
     )  # address to deploy from - one of fake accounts in GUI
     private_key = os.getenv("PRIVATE_KEY")  # From key symbol next to account
     w3 = Web3(
@@ -29,6 +29,7 @@ try:
         buttonsAllowed = False
 
 except Exception as e:
+    print(e)
     logging.error(
         "Could not find certain environment variables. Please make sure .env is up to date."
     )

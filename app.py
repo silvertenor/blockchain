@@ -2,7 +2,8 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 import logging
-import os, json
+import os, json, sys
+from importlib import reload
 
 basedir = os.path.dirname(__file__)
 os.environ["basedir"] = basedir
@@ -11,6 +12,8 @@ import source.modules.history as hist
 import source.modules.configPush as conf
 import source.modules.deployContract as dc
 import source.modules.environmentSetup as es
+import source.modules.environmentUpdate as eu
+
 
 # Set up
 with open(os.path.join(basedir, "source", "compiled_code.json"), "r") as file:
@@ -83,58 +86,42 @@ class MainWindow(QMainWindow):
         self.layout = QVBoxLayout(self)
         # set up our UI
         self.setWindowTitle("GEthereum")
-        title = QLabel("GEthereum Main Window")
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.tabs = QTabWidget()
-        self.tab1 = QWidget()
-        self.tab2 = QWidget()
-        self.tabs.addTab(self.tab1, "Tab 1")
-        self.tabs.addTab(self.tab2, "Tab 2")
-        # Total layout of pages
-        self.tab1.layout = QVBoxLayout()
-        self.tab2.layout = QVBoxLayout()
-        # Individual layout of buttons (tab 1)
-        buttonLayout = QHBoxLayout()
-
+        self.title = QLabel("GEthereum Main Window")
+        self.title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # Initialize credential form
         self.createForm()
-        tab2Title = QLabel("Credential Management")
-        tab2Title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.tab2.layout.addWidget(tab2Title)
-        self.tab2.layout.addWidget(self.formGroupBox)
+        # Initialize all buttons
+        self.buttonInitialize()
+        # Initialize logbox
+        self.logInitialize()
+        # Initialize tabs
+        self.tabInitialize()
+
+        # set our view of the page
+        widget = QWidget()
+        self.layout.addWidget(self.tabs)
+        widget.setLayout(self.layout)  # apply layout to our widget
+        # Force screen to maximize
+        self.showMaximized()
+
+        # Set the central widget of the Window. Widget will expand
+        # to take up all the space in the window by default.
+        self.setCentralWidget(widget)
+
+    def buttonInitialize(self):
         # initialize our labels/buttons/tables
         queryButton = QPushButton("Query Chain")
         configPushButton = QPushButton("Publish New Configuration")
         deployButton = QPushButton("Deploy Contract")
-
-        # add our widgets to each layout
-        self.tab1.layout.addWidget(title)
-        self.tab1.layout.addLayout(buttonLayout)
-        buttonLayout.addWidget(configPushButton)
-        buttonLayout.addWidget(queryButton)
-        buttonLayout.addWidget(deployButton)
-
-        # Table view
-        self.table = QTableView()
-        self.tab1.layout.addWidget(self.table)
-
-        # Log view
-        logBox = QTextEditLogger(self)
-        logBox.setFormatter(
-            logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-        )
-        logging.getLogger().addHandler(logBox)
-        logging.getLogger().setLevel(logging.DEBUG)
-        # self.tab1.pageLayout.addWidget(self.formGroupBox)
-        self.tab1.layout.addWidget(logBox.widget)
-        # set our view of the page
-        widget = QWidget()
-        self.layout.addWidget(self.tabs)
-        self.tab1.setLayout(self.tab1.layout)
-        self.tab2.setLayout(self.tab2.layout)
-        widget.setLayout(self.layout)  # apply layout to our widget
-        # Force screen to maximize
-        self.showMaximized()
+        saveCredentialButton = QPushButton("Save Changes")
+        # Individual layout of buttons (tab 1)
+        self.mainButtonLayout = QHBoxLayout()
+        self.mainButtonLayout.addWidget(configPushButton)
+        self.mainButtonLayout.addWidget(queryButton)
+        self.mainButtonLayout.addWidget(deployButton)
+        # Layout of buttons (tab 2)
+        self.credButtonLayout = QHBoxLayout()
+        self.credButtonLayout.addWidget(saveCredentialButton)
         # Define backend functions for our buttons when pushed
         queryButton.setCheckable = True
         queryButton.clicked.connect(lambda: self.getData())
@@ -142,10 +129,43 @@ class MainWindow(QMainWindow):
         configPushButton.clicked.connect(lambda: self.pushConfig())
         deployButton.setCheckable = True
         deployButton.clicked.connect(lambda: self.updateContract())
+        saveCredentialButton.setCheckable = True
+        saveCredentialButton.clicked.connect(lambda: self.updateCredentials())
 
-        # Set the central widget of the Window. Widget will expand
-        # to take up all the space in the window by default.
-        self.setCentralWidget(widget)
+    # Set up logging box
+    def logInitialize(self):
+        # Log view
+        self.logBox = QTextEditLogger(self)
+        self.logBox.setFormatter(
+            logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        )
+        logging.getLogger().addHandler(self.logBox)
+        logging.getLogger().setLevel(logging.DEBUG)
+
+    # Set up tabs and layout
+    def tabInitialize(self):
+        self.tabs = QTabWidget()
+        self.tab1 = QWidget()
+        self.tab2 = QWidget()
+        self.tabs.addTab(self.tab1, "Main View")
+        self.tabs.addTab(self.tab2, "Credential Manager")
+        # Total layout of pages
+        self.tab1.layout = QVBoxLayout()
+        self.tab2.layout = QVBoxLayout()
+        tab2Title = QLabel("Credential Management")
+        tab2Title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.tab2.layout.addWidget(tab2Title)
+        self.tab2.layout.addWidget(self.formGroupBox)
+        self.tab2.layout.addLayout(self.credButtonLayout)
+        # add our widgets to each layout
+        self.tab1.layout.addWidget(self.title)
+        self.tab1.layout.addLayout(self.mainButtonLayout)
+        # Table view
+        self.table = QTableView()
+        self.tab1.layout.addWidget(self.table)
+        self.tab1.layout.addWidget(self.logBox.widget)
+        self.tab1.setLayout(self.tab1.layout)
+        self.tab2.setLayout(self.tab2.layout)
 
     # Function to create form
     def createForm(self):
@@ -217,6 +237,26 @@ class MainWindow(QMainWindow):
                     "An error occured when deploying the contract or querying the chain. Please make sure you have a valid connection to the server and that your .env file is up to date."
                 )
             )
+
+    def updateCredentials(self):
+        updateDict = {}
+        formList = self.formGroupBox.children()
+        for key, nextVal in enumerate(formList):
+            if isinstance(nextVal, QLabel):
+                if formList[key + 1].text():
+                    updateDict[nextVal.text()] = formList[key + 1].text()
+
+        if updateDict:
+            # Update environment variables
+            eu.updateEnv(updateDict)
+            # Quit app
+            QCoreApplication.quit()
+            # Start new instance of application
+            status = QProcess.startDetached(sys.executable, sys.argv)
+            # Reload .env file
+            reload(es)
+            # Terminate current app
+            sys.exit(app.exec_())
 
 
 app = QApplication([])
