@@ -13,6 +13,7 @@ import source.modules.configPush as conf
 import source.modules.deployContract as dc
 import source.modules.environmentSetup as es
 import source.modules.environmentUpdate as eu
+import source.modules.updateChain as uc
 
 
 # Set up
@@ -113,9 +114,11 @@ class MainWindow(QMainWindow):
         queryButton = QPushButton("Query Chain")
         configPushButton = QPushButton("Publish New Configuration")
         deployButton = QPushButton("Deploy Contract")
+        checkButton = QPushButton("Check Configuration File")
         saveCredentialButton = QPushButton("Save Changes")
         # Individual layout of buttons (tab 1)
         self.mainButtonLayout = QHBoxLayout()
+        self.mainButtonLayout.addWidget(checkButton)
         self.mainButtonLayout.addWidget(configPushButton)
         self.mainButtonLayout.addWidget(queryButton)
         self.mainButtonLayout.addWidget(deployButton)
@@ -129,6 +132,8 @@ class MainWindow(QMainWindow):
         configPushButton.clicked.connect(lambda: self.pushConfig())
         deployButton.setCheckable = True
         deployButton.clicked.connect(lambda: self.updateContract())
+        checkButton.setCheckable = True
+        checkButton.clicked.connect(lambda: self.checkConfig())
         saveCredentialButton.setCheckable = True
         saveCredentialButton.clicked.connect(lambda: self.updateCredentials())
 
@@ -187,6 +192,10 @@ class MainWindow(QMainWindow):
         for row in rows:
             layout.addRow(QLabel(row), rows[row])
         self.formGroupBox.setLayout(layout)
+
+    def checkConfig(self):
+        uc.chainChecker()
+        self.getData()
 
     # Function to push config
     def pushConfig(self):
