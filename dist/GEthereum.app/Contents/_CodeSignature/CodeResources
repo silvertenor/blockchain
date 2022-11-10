@@ -21718,7 +21718,7 @@
 		</data>
 		<key>Resources/source/.env</key>
 		<data>
-		g+rYh62sh4ylwBp7XYsJktG+xs8=
+		i+cS7lFIwjJZv1ewZXFdL2TEUN4=
 		</data>
 		<key>Resources/source/DataTracker.sol</key>
 		<data>
@@ -21734,7 +21734,7 @@
 		</data>
 		<key>Resources/source/logfiles/Device.xml</key>
 		<data>
-		y0U/f5FmlzNeqBod/oKeiCDUXig=
+		D2lGoTsiE3NmtO9ZGW2/QB1rCZs=
 		</data>
 		<key>Resources/source/logfiles/help.txt</key>
 		<data>
@@ -21747,6 +21747,10 @@
 		<key>Resources/source/logfiles/workstationLog.txt</key>
 		<data>
 		t5tY3HuglAviKqDGae+bM3/RE4g=
+		</data>
+		<key>Resources/source/modules/__pycache__/autoCheck.cpython-39.pyc</key>
+		<data>
+		QJ9d+9kMIQl6dC0q0kEHXpID89A=
 		</data>
 		<key>Resources/source/modules/__pycache__/configPush.cpython-39.pyc</key>
 		<data>
@@ -21774,7 +21778,11 @@
 		</data>
 		<key>Resources/source/modules/__pycache__/updateChain.cpython-39.pyc</key>
 		<data>
-		KPaLYsNWw+Yrix1u1/dlpBTXgYM=
+		5u5CPNvgZDr+fw1W3S5Hlk6GaIY=
+		</data>
+		<key>Resources/source/modules/autoCheck.py</key>
+		<data>
+		0fvJVuxLDp2IvdZ2EppK9yZS1Ik=
 		</data>
 		<key>Resources/source/modules/configPush.py</key>
 		<data>
@@ -21798,7 +21806,7 @@
 		</data>
 		<key>Resources/source/modules/updateChain.py</key>
 		<data>
-		/51yaqirEwfXKiITOMX7przCGOk=
+		4UvV5XgZncaSIVnsvKH2osB6TQ4=
 		</data>
 		<key>Resources/source/secrets/mykey.key</key>
 		<data>
@@ -63968,7 +63976,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			3V/HeXG2L8J9bcJvdveRHmuimmxFf5mj0ItT/jo1Fiw=
+			bxaXBgnnQ1Ev6WcuuL++HHl/gDgSE9KYRRJpprmHb90=
 			</data>
 		</dict>
 		<key>Resources/source/DataTracker.sol</key>
@@ -63996,7 +64004,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			WfWLRAo+c0JmZuW65Svgnx7inay40zvluZdwJY+VKC0=
+			pb+/ugZ5ONa4EYreX3KF2IBW0aIrF3bn4fTgBtGzqbs=
 			</data>
 		</dict>
 		<key>Resources/source/logfiles/help.txt</key>
@@ -64018,6 +64026,13 @@
 			<key>hash2</key>
 			<data>
 			X3OdfqCuHeGw+wa8TL1mnzceXXd4VIVQsaKsU/7F78M=
+			</data>
+		</dict>
+		<key>Resources/source/modules/__pycache__/autoCheck.cpython-39.pyc</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			kJVkcIAyZUGPajPxnlZrha4ADFnEOJj3AEHyPe2Qpq0=
 			</data>
 		</dict>
 		<key>Resources/source/modules/__pycache__/configPush.cpython-39.pyc</key>
@@ -64066,7 +64081,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			0yiBqvCoWyzWZ920ZyCkWdCthPk1Jw5dj2CWK9a5XkA=
+			J5pWvqoFcSlPsvLmN/ThKsleHoCmjmMXraI8X1Cad38=
+			</data>
+		</dict>
+		<key>Resources/source/modules/autoCheck.py</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			YNW4U17INXJ3RukNyjt159y7YIpbsWEFHz7cHwRwRgU=
 			</data>
 		</dict>
 		<key>Resources/source/modules/configPush.py</key>
@@ -64108,7 +64130,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			WmdZHufBrgs+ypTa5KRYD92bDA+jqDHAkI5Gsa1GqTo=
+			V3QNePM6UdluYsqUmqBKO7oJVzTQ+wDed9wwsUe67Y8=
 			</data>
 		</dict>
 		<key>Resources/source/secrets/mykey.key</key>

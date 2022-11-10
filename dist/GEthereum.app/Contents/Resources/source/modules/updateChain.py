@@ -144,7 +144,9 @@ def decrypt(paramToDecrypt):
     return decryptedParam
 
 
-def chainChecker():
+def chainChecker(
+    DEVICE_XML_PATH=os.path.join(basedir, "source/logfiles", "Device.xml")
+):
     """
     This function checks the on-chain hash of the Device.xml file and compares it
     to what is on the local filesystem. If they are different, a change has been
@@ -169,7 +171,6 @@ def chainChecker():
     on_chain_hash = dtContract.functions.retrieve().call()[0]
     print("On-chain hash: {}".format(on_chain_hash))
     # Generate the hash of the log file
-    DEVICE_XML_PATH = os.path.join(basedir, "source/logfiles", "Device.xml")
     device_hash = "0x" + hashGenerator(DEVICE_XML_PATH).hexdigest()
     print("Local hash: {}".format(device_hash))
     # compare the two - if different, update the blockchain!

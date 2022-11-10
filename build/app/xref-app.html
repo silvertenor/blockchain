@@ -161,6 +161,7 @@ imports:
  &#8226;   <a href="#linecache">linecache</a>
  &#8226;   <a href="#locale">locale</a>
  &#8226;   <a href="#logging">logging</a>
+ &#8226;   <a href="#multiprocessing">multiprocessing</a>
  &#8226;   <a href="#operator">operator</a>
  &#8226;   <a href="#os">os</a>
  &#8226;   <a href="#pyi_rth__tkinter.py">pyi_rth__tkinter.py</a>
@@ -174,6 +175,7 @@ imports:
  &#8226;   <a href="#re">re</a>
  &#8226;   <a href="#reprlib">reprlib</a>
  &#8226;   <a href="#signal">signal</a>
+ &#8226;   <a href="#source.modules.autoCheck">source.modules.autoCheck</a>
  &#8226;   <a href="#source.modules.configPush">source.modules.configPush</a>
  &#8226;   <a href="#source.modules.deployContract">source.modules.deployContract</a>
  &#8226;   <a href="#source.modules.environmentSetup">source.modules.environmentSetup</a>
@@ -183,7 +185,9 @@ imports:
  &#8226;   <a href="#sre_compile">sre_compile</a>
  &#8226;   <a href="#sre_constants">sre_constants</a>
  &#8226;   <a href="#sre_parse">sre_parse</a>
+ &#8226;   <a href="#subprocess">subprocess</a>
  &#8226;   <a href="#sys">sys</a>
+ &#8226;   <a href="#threading">threading</a>
  &#8226;   <a href="#tokenize">tokenize</a>
  &#8226;   <a href="#traceback">traceback</a>
  &#8226;   <a href="#types">types</a>
@@ -37741,7 +37745,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#black">black</a>
+    <a href="#app.py">app.py</a>
+ &#8226;   <a href="#black">black</a>
  &#8226;   <a href="#concurrent.futures.process">concurrent.futures.process</a>
  &#8226;   <a href="#jupyter_client.ssh.tunnel">jupyter_client.ssh.tunnel</a>
  &#8226;   <a href="#lib2to3.refactor">lib2to3.refactor</a>
@@ -45617,6 +45622,7 @@ imported by:
  &#8226;   <a href="#socks">socks</a>
  &#8226;   <a href="#solcx.install">solcx.install</a>
  &#8226;   <a href="#solcx.utils.lock">solcx.utils.lock</a>
+ &#8226;   <a href="#source.modules.autoCheck">source.modules.autoCheck</a>
  &#8226;   <a href="#source.modules.configPush">source.modules.configPush</a>
  &#8226;   <a href="#source.modules.deployContract">source.modules.deployContract</a>
  &#8226;   <a href="#source.modules.environmentSetup">source.modules.environmentSetup</a>
@@ -65468,7 +65474,6 @@ imports:
  &#8226;   <a href="#pygments">pygments</a>
  &#8226;   <a href="#pygments.lexers.PythonLexer">pygments.lexers.PythonLexer</a>
  &#8226;   <a href="#pygments.lexers._mapping">pygments.lexers._mapping</a>
- &#8226;   <a href="#pygments.lexers._mql_builtins">pygments.lexers._mql_builtins</a>
  &#8226;   <a href="#pygments.lexers._scilab_builtins">pygments.lexers._scilab_builtins</a>
  &#8226;   <a href="#pygments.lexers._stan_builtins">pygments.lexers._stan_builtins</a>
  &#8226;   <a href="#pygments.lexers._vbscript_builtins">pygments.lexers._vbscript_builtins</a>
@@ -65877,7 +65882,6 @@ imports:
   <div class="import">
 imported by:
     <a href="#pygments">pygments</a>
- &#8226;   <a href="#pygments.lexers">pygments.lexers</a>
  &#8226;   <a href="#pygments.lexers.c_like">pygments.lexers.c_like</a>
  &#8226;   <a href="#pygments.lexers.freefem">pygments.lexers.freefem</a>
 
@@ -73770,7 +73774,6 @@ imported by:
 imports:
     <a href="#setuptools">setuptools</a>
  &#8226;   <a href="#setuptools._vendor">setuptools._vendor</a>
- &#8226;   <a href="#setuptools._vendor.zipp">setuptools._vendor.zipp</a>
 
   </div>
   <div class="import">
@@ -75069,7 +75072,6 @@ imports:
   <div class="import">
 imported by:
     <a href="#setuptools">setuptools</a>
- &#8226;   <a href="#setuptools._vendor">setuptools._vendor</a>
  &#8226;   <a href="#setuptools._vendor.importlib_metadata">setuptools._vendor.importlib_metadata</a>
  &#8226;   <a href="#setuptools._vendor.importlib_resources._compat">setuptools._vendor.importlib_resources._compat</a>
 
@@ -77112,12 +77114,32 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#source.modules.configPush">source.modules.configPush</a>
+    <a href="#source.modules.autoCheck">source.modules.autoCheck</a>
+ &#8226;   <a href="#source.modules.configPush">source.modules.configPush</a>
  &#8226;   <a href="#source.modules.deployContract">source.modules.deployContract</a>
  &#8226;   <a href="#source.modules.environmentSetup">source.modules.environmentSetup</a>
  &#8226;   <a href="#source.modules.environmentUpdate">source.modules.environmentUpdate</a>
  &#8226;   <a href="#source.modules.history">source.modules.history</a>
  &#8226;   <a href="#source.modules.updateChain">source.modules.updateChain</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="source.modules.autoCheck"></a>
+  <a target="code" href="/Users/devinlane/Documents/research/gethereum/source/modules/autoCheck.py" type="text/plain"><tt>source.modules.autoCheck</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#os">os</a>
+ &#8226;   <a href="#source.modules">source.modules</a>
+ &#8226;   <a href="#source.modules.updateChain">source.modules.updateChain</a>
+ &#8226;   <a href="#time">time</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#app.py">app.py</a>
 
   </div>
 
@@ -77248,6 +77270,7 @@ imports:
   <div class="import">
 imported by:
     <a href="#app.py">app.py</a>
+ &#8226;   <a href="#source.modules.autoCheck">source.modules.autoCheck</a>
  &#8226;   <a href="#source.modules.configPush">source.modules.configPush</a>
  &#8226;   <a href="#source.modules.deployContract">source.modules.deployContract</a>
  &#8226;   <a href="#source.modules.history">source.modules.history</a>
@@ -77805,6 +77828,7 @@ imported by:
  &#8226;   <a href="#IPython.utils._process_win32">IPython.utils._process_win32</a>
  &#8226;   <a href="#IPython.utils.sysinfo">IPython.utils.sysinfo</a>
  &#8226;   <a href="#_aix_support">_aix_support</a>
+ &#8226;   <a href="#app.py">app.py</a>
  &#8226;   <a href="#asyncio.base_events">asyncio.base_events</a>
  &#8226;   <a href="#asyncio.base_subprocess">asyncio.base_subprocess</a>
  &#8226;   <a href="#asyncio.events">asyncio.events</a>
@@ -78816,6 +78840,7 @@ imported by:
  &#8226;   <a href="#IPython.core.magics.script">IPython.core.magics.script</a>
  &#8226;   <a href="#IPython.utils._process_win32">IPython.utils._process_win32</a>
  &#8226;   <a href="#_threading_local">_threading_local</a>
+ &#8226;   <a href="#app.py">app.py</a>
  &#8226;   <a href="#asyncio.base_events">asyncio.base_events</a>
  &#8226;   <a href="#asyncio.events">asyncio.events</a>
  &#8226;   <a href="#asyncio.proactor_events">asyncio.proactor_events</a>
@@ -78997,6 +79022,7 @@ imported by:
  &#8226;   <a href="#setuptools._vendor.more_itertools.more">setuptools._vendor.more_itertools.more</a>
  &#8226;   <a href="#setuptools.command.egg_info">setuptools.command.egg_info</a>
  &#8226;   <a href="#socketserver">socketserver</a>
+ &#8226;   <a href="#source.modules.autoCheck">source.modules.autoCheck</a>
  &#8226;   <a href="#sqlite3.dbapi2">sqlite3.dbapi2</a>
  &#8226;   <a href="#ssl">ssl</a>
  &#8226;   <a href="#subprocess">subprocess</a>

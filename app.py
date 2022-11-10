@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import *
 import logging
 import os, json, sys, signal
 from importlib import reload
+import subprocess, threading, multiprocessing
 
 basedir = os.path.dirname(__file__)
 os.environ["basedir"] = basedir
@@ -14,6 +15,7 @@ import source.modules.deployContract as dc
 import source.modules.environmentSetup as es
 import source.modules.environmentUpdate as eu
 import source.modules.updateChain as uc
+import source.modules.autoCheck as ac
 
 
 # Set up
@@ -81,6 +83,18 @@ class TableModel(QAbstractTableModel):
 
 # Our window
 class MainWindow(QMainWindow):
+    def closeEvent(self, *args, **kwargs):
+        super(QMainWindow, self).closeEvent(*args, **kwargs)
+        try:
+            print("terminating process{}".format(proc2))
+            proc2.terminate()
+            proc2.join()
+            # p.wait()
+            print("Process terminated.")
+            print("Process{}".format(proc2))
+        except:
+            print("Could not terminate python process")
+
     def __init__(self):
         # initialize parent model
         super().__init__()
@@ -272,8 +286,23 @@ def sigquit_handler(signum, frame):
     sys.exit(app.exec_())
 
 
-app = QApplication([])
-window = MainWindow()
-window.show()
+# p = subprocess.Popen(["python", "process.py"])
 
-app.exec()
+
+def backgroun():
+    ac.main()
+
+
+if __name__ == "__main__":
+    multiprocessing.freeze_support()
+    proc2 = multiprocessing.Process(target=backgroun)
+    proc2.daemon = True
+    proc2.start()
+
+    app = QApplication([])
+    window = MainWindow()
+    window.show()
+
+    app.exec()
+
+# app.aboutToQuit.connect(exitHandler())
