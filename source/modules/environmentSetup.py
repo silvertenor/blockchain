@@ -23,7 +23,7 @@ try:
         os.environ["contract_address"] = os.getenv(
             "CONTRACT_ADDRESS"
         )  # our contract's address
-        buttonsAllowed = True
+        os.environ["last_tx"] = os.getenv("LAST_TX")  # Most recent tx
     # Change to proper working directory
     except:
         buttonsAllowed = False

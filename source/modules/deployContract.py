@@ -1,6 +1,7 @@
 from .environmentSetup import *
 from .updateChain import *
 from .history import *
+from .environmentUpdate import *
 import os
 
 # Time the notebook
@@ -80,6 +81,10 @@ def deployContract(bytecode, abi):
     )  # Can now view this in 'transactions' in ganache
     # Wait for block confirmation:
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+    tx = tx_receipt["transactionHash"].hex()
+    txDict = {"Last Tx": tx}
+    updateEnv(txDict)
+    os.environ["last_tx"] = tx
     # Get address of smart contract:
     os.environ["contract_address"] = tx_receipt.contractAddress
     print("Deployed!")
@@ -87,7 +92,7 @@ def deployContract(bytecode, abi):
     return os.environ["contract_address"]
 
 
-def updateEnv(contract_address):
+def updateEnvLocal(contract_address):
     file_lines = []
     set_key(
         os.path.join(basedir, "source", ".env"), "CONTRACT_ADDRESS", contract_address
@@ -99,7 +104,7 @@ def main():
     print("In main")
     bytecode, abi = compileSolFile()
     contractAdd = deployContract(bytecode, abi)
-    updateEnv(contractAdd)
+    updateEnvLocal(contractAdd)
     chainChecker()
 
 

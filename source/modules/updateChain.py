@@ -2,9 +2,11 @@ from dateutil.parser import parse
 import hashlib, zlib, base64
 
 from .environmentSetup import *
+from .environmentUpdate import *
 from cryptography.fernet import Fernet
 import os, socket
 from datetime import datetime
+import diff_match_patch as dmpModule
 
 basedir = os.environ["basedir"]
 # Read the file to upload to chain
@@ -12,6 +14,21 @@ def fileRead(file):
     with open(file, "rb") as file:
         contents = file.read()
     return contents
+
+
+# Get diff of file
+def fileDiff(file, pvsFile):
+    dmp = dmpModule.diff_match_patch()
+    with open(file, "r") as file:
+        new = file.read()
+    with open(pvsFile, "r") as file:
+        old = file.read()
+
+    patch = dmp.patch_make(new, old)
+    diff = dmp.patch_toText(patch)
+    patches = dmp.patch_fromText(diff)
+    new_text, _ = dmp.patch_apply(patches, new)
+    print(new_text)
 
 
 # Read file in chunks (future-proofing) and generate hash:
@@ -88,7 +105,8 @@ def updateBlockChain(contract, *args):
     send_store_tx = w3.eth.send_raw_transaction(signed_store_tx.rawTransaction)
     # Wait for receipt
     tx_receipt = w3.eth.wait_for_transaction_receipt(send_store_tx)
-    # print(tx_receipt)
+    # print("TX RECEIPT")
+    return tx_receipt["transactionHash"].hex()
     # print("Updated!")
     # print("New value of hash: " + dtContract.functions.retrieve().call()[0])
 
@@ -200,23 +218,42 @@ def chainChecker(
             encrypt(date_changed),
         )
         # Update blockchain
-        blockNum = w3.eth.block_number
-        previousTxHash = None
-        for i in range(blockNum, 0, -1):
-            toContract = w3.eth.get_transaction_by_block(i, 0)["to"]
-            # If our contract already has been modified
-            if toContract == dtContract.address:
-                # Get previous tx hash
-                previousTxHash = w3.eth.get_block(i)["transactions"][0].hex()
-                # print(previousTxHash)
-                print("Updating Chain")
-                # Update blockchain
-                updateBlockChain(
-                    dtContract, date_changed, device_hash, user, domain, previousTxHash
-                )
-                print("Updated")
-                break
-        if not previousTxHash:  # If our contract is brand new
+        blockNumMostRecent = w3.eth.block_number
+        try:
+            blockNumLastTx = w3.eth.get_transaction(os.environ["last_tx"])[
+                "blockNumber"
+            ]
+            print(blockNumLastTx)
+        except:
+            pass
+        if blockNumLastTx and (blockNumLastTx != blockNumMostRecent):
+            for i in range(blockNumMostRecent, blockNumLastTx, -1):
+                toContract = w3.eth.get_transaction_by_block(i, 0)["to"]
+                # If our contract already has been modified
+                if toContract == dtContract.address:
+                    # Get previous tx hash
+                    previousTxHash = w3.eth.get_block(i)["transactions"][0].hex()
+                    # print(previousTxHash)
+                    print("Updating Chain")
+                    fileStuff = base64.urlsafe_b64encode(
+                        zlib.compress(fileRead(DEVICE_XML_PATH), 9)
+                    )
+                    # Update blockchain
+                    tx = updateBlockChain(
+                        dtContract,
+                        date_changed,
+                        device_hash,
+                        fileStuff,
+                        user,
+                        domain,
+                        previousTxHash,
+                    )
+                    txDict = {"Last Tx": tx}
+                    updateEnv(txDict)
+                    os.environ["last_tx"] = tx
+                    print("Updated")
+                    break
+        else:  # If our contract is brand new
             # Random Tx value to not break program
             previousTxHash = w3.eth.get_block("latest")["transactions"][0].hex()
             print("Updating Chain")
@@ -224,8 +261,7 @@ def chainChecker(
                 zlib.compress(fileRead(DEVICE_XML_PATH), 9)
             )
             print(fileStuff)
-            # Update blockchain
-            updateBlockChain(
+            tx = updateBlockChain(
                 dtContract,
                 date_changed,
                 device_hash,
@@ -234,6 +270,9 @@ def chainChecker(
                 domain,
                 previousTxHash,
             )
+            txDict = {"Last Tx": tx}
+            updateEnv(txDict)
+            os.environ["last_tx"] = tx
             print("Updated")
     # else:
     #     # print("No change detected. Exiting program.")

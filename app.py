@@ -249,8 +249,9 @@ class MainWindow(QMainWindow):
         logging.info("Deploying contract...")
         # self.pageLayout.addWidget(prog_bar)
         # call function to deploy new contract
+        dc.main()
         try:
-            dc.main()
+            # dc.main()
             # Update table
             self.getData()
             logging.info("Contract deployed and table updated!")

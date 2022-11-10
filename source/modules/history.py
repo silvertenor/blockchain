@@ -69,10 +69,11 @@ def getHistory():
             },
             inplace=True,
         )
-    except:
+    except Exception as e:
         logging.error(
             "Error finding contract"
             "s history. Make sure correct address is stored and that initial contract is deployed."
         )
+        logging.error(e)
     # print(df)
     return df
