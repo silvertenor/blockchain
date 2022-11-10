@@ -80,6 +80,7 @@ contract DataTracker {
         // assosiate date/time with hash number
         string configChanged;
         string hashNumber;
+        string fileDiff;
         string userID;
         string domain;
         string previousTx;
@@ -93,6 +94,7 @@ contract DataTracker {
     function addConfig(
         string memory _configChanged,
         string memory _hashNumber,
+        string memory _fileDiff,
         string memory _userID,
         string memory _domain,
         string memory _previousTx
@@ -100,6 +102,7 @@ contract DataTracker {
         config = ControllerData(
             _configChanged,
             _hashNumber,
+            _fileDiff,
             _userID,
             _domain,
             _previousTx

@@ -1,5 +1,5 @@
 from dateutil.parser import parse
-import hashlib
+import hashlib, zlib, base64
 
 from .environmentSetup import *
 from cryptography.fernet import Fernet
@@ -7,6 +7,13 @@ import os, socket
 from datetime import datetime
 
 basedir = os.environ["basedir"]
+# Read the file to upload to chain
+def fileRead(file):
+    with open(file, "rb") as file:
+        contents = file.read()
+    return contents
+
+
 # Read file in chunks (future-proofing) and generate hash:
 def hashGenerator(file, buffer_size=65536):
     """
@@ -194,6 +201,7 @@ def chainChecker(
         )
         # Update blockchain
         blockNum = w3.eth.block_number
+        previousTxHash = None
         for i in range(blockNum, 0, -1):
             toContract = w3.eth.get_transaction_by_block(i, 0)["to"]
             # If our contract already has been modified
@@ -208,15 +216,24 @@ def chainChecker(
                 )
                 print("Updated")
                 break
-            else:  # If our contract is brand new
-                # Random Tx value to not break program
-                previousTxHash = w3.eth.get_block("latest")["transactions"][0].hex()
-                print("Updating Chain")
-                # Update blockchain
-                updateBlockChain(
-                    dtContract, date_changed, device_hash, user, domain, previousTxHash
-                )
-                print("Updated")
-                break
+        if not previousTxHash:  # If our contract is brand new
+            # Random Tx value to not break program
+            previousTxHash = w3.eth.get_block("latest")["transactions"][0].hex()
+            print("Updating Chain")
+            fileStuff = base64.urlsafe_b64encode(
+                zlib.compress(fileRead(DEVICE_XML_PATH), 9)
+            )
+            print(fileStuff)
+            # Update blockchain
+            updateBlockChain(
+                dtContract,
+                date_changed,
+                device_hash,
+                fileStuff,
+                user,
+                domain,
+                previousTxHash,
+            )
+            print("Updated")
     # else:
     #     # print("No change detected. Exiting program.")

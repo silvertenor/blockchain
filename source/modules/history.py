@@ -1,7 +1,7 @@
 from .environmentSetup import *
 from .updateChain import decrypt, chainChecker
 import pandas as pd
-import logging
+import logging, zlib, base64
 
 basedir = os.environ["basedir"]
 
@@ -39,19 +39,32 @@ def getHistory():
                 params["_configChanged"] = decrypt(params["_configChanged"])
                 params["_userID"] = decrypt(params["_userID"])
                 params["_domain"] = decrypt(params["_domain"])
+                params["_fileDiff"] = zlib.decompress(
+                    base64.urlsafe_b64decode(params["_fileDiff"])
+                )
                 pvsTx = params["_previousTx"]
                 history.append(params)
             except:
                 pvsTx = False
         # print(history)
         df = pd.DataFrame(history)
-        df = df[["_configChanged", "_userID", "_domain", "_hashNumber", "_previousTx"]]
+        df = df[
+            [
+                "_configChanged",
+                "_userID",
+                "_domain",
+                "_hashNumber",
+                "_fileDiff",
+                "_previousTx",
+            ]
+        ]
         df.rename(
             columns={
                 "_configChanged": "Date",
                 "_userID": "User ID",
                 "_domain": "Domain",
                 "_hashNumber": "Hash",
+                "_fileDiff": "File Diff",
                 "_previousTx": "Previous Transaction",
             },
             inplace=True,
