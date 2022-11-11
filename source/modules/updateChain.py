@@ -178,7 +178,7 @@ def chainChecker(
         # print("DIFFERENCE DETECTED")
         # Gather metadata:
         user, domain, date_changed = (
-            os.environ.get("USER"),  # logged in user
+            os.getlogin(),  # logged in user
             socket.gethostname(),  # Domain of user
             str(
                 datetime.fromtimestamp(os.path.getmtime(DEVICE_XML_PATH)).replace(
