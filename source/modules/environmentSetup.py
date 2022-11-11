@@ -24,6 +24,7 @@ try:
             "CONTRACT_ADDRESS"
         )  # our contract's address
         os.environ["last_tx"] = os.getenv("LAST_TX")  # Most recent tx
+        os.environ["contract_tx"] = os.getenv("CONTRACT_TX")
     # Change to proper working directory
     except:
         buttonsAllowed = False

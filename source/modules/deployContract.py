@@ -82,9 +82,10 @@ def deployContract(bytecode, abi):
     # Wait for block confirmation:
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     tx = tx_receipt["transactionHash"].hex()
-    txDict = {"Last Tx": tx}
+    txDict = {"Last Tx": tx, "Contract Tx": tx}
     updateEnv(txDict)
     os.environ["last_tx"] = tx
+    os.environ["contract_tx"] = tx
     # Get address of smart contract:
     os.environ["contract_address"] = tx_receipt.contractAddress
     print("Deployed!")

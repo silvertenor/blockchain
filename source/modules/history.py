@@ -20,14 +20,19 @@ def getHistory():
     logging.info(
         "Traversing chain from most recent block to find your contract" "s history..."
     )
+    blockNumMostRecent = w3.eth.block_number
     try:
-        blockNum = w3.eth.block_number
-        for i in range(blockNum, 0, -1):
-            toContract = w3.eth.get_transaction_by_block(i, 0)["to"]
-            if toContract == dtContract.address:
-                pvsTx = w3.eth.get_block(i)["transactions"][0].hex()
-                # print(previousTxHash)
-                break
+        blockNumLastTx = w3.eth.get_transaction(os.environ["last_tx"])["blockNumber"]
+        print("Last TX" + str(blockNumLastTx))
+        if blockNumLastTx == blockNumMostRecent:
+            pvsTx = w3.eth.get_block(blockNumMostRecent)["transactions"][0].hex()
+        else:
+            for i in range(blockNumMostRecent, blockNumLastTx, -1):
+                toContract = w3.eth.get_transaction_by_block(i, 0)["to"]
+                if toContract == dtContract.address:
+                    pvsTx = w3.eth.get_block(i)["transactions"][0].hex()
+                    # print(previousTxHash)
+                    break
         print(pvsTx)
         history = []
         while pvsTx:
@@ -69,6 +74,7 @@ def getHistory():
             },
             inplace=True,
         )
+        return df
     except Exception as e:
         logging.error(
             "Error finding contract"
@@ -76,4 +82,3 @@ def getHistory():
         )
         logging.error(e)
     # print(df)
-    return df

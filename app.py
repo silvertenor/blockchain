@@ -225,7 +225,8 @@ class MainWindow(QMainWindow):
             conf.updateChain()
             # Update the table
             self.getData()
-        except:
+        except Exception as e:
+            logging.error(e)
             logging.error("Error publishing new configuration.")
 
     # Function to get data
@@ -296,9 +297,9 @@ def backgroun():
 
 if __name__ == "__main__":
     multiprocessing.freeze_support()
-    proc2 = multiprocessing.Process(target=backgroun)
-    proc2.daemon = True
-    proc2.start()
+    # proc2 = multiprocessing.Process(target=backgroun)
+    # proc2.daemon = True
+    # proc2.start()
 
     app = QApplication([])
     window = MainWindow()
