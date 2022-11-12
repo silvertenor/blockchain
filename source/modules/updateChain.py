@@ -45,12 +45,12 @@ def fileDiff(file):
     except Exception as e:
         logging.error(e + "In source.modules.updateChain.fileDiff()")
         pass
-    with open(file, "r") as file:
+    with open(file, "r", encoding="utf-8") as file:
         new = file.read()
-    with open("demoFile.xml", "w") as file:
-        file.write(old)
-    with open("demoFileNew.xml", "w") as file:
-        file.write(new)
+    # with open("demoFile.xml", "w", encoding="utf-8") as file:
+    #     file.write(old)
+    # with open("demoFileNew.xml", "w", encoding="utf-8") as file:
+    #     file.write(new)
     dmp = dmpModule.diff_match_patch()
     patch = dmp.patch_make(old, new)
     diff = dmp.patch_toText(patch)
@@ -278,8 +278,9 @@ def chainChecker(
             updateEnv(txDict)
             os.environ["last_tx"] = tx
             print("Updated")
-        except:
-            pass
+        except Exception as e:
+            logging.error("ERROR HERE")
+            logging.error(e)
             # If our contract is brand new
 
 
