@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import *
 import logging
 import os, json, sys, signal
 from importlib import reload
-import subprocess, threading, multiprocessing
+import shutil, multiprocessing
 
 basedir = os.path.dirname(__file__)
 os.environ["basedir"] = basedir
@@ -16,7 +16,7 @@ import source.modules.environmentSetup as es
 import source.modules.environmentUpdate as eu
 import source.modules.updateChain as uc
 import source.modules.autoCheck as ac
-
+import source.modules.diffMachine as dm
 
 # Set up
 with open(os.path.join(basedir, "source", "compiled_code.json"), "r") as file:
@@ -85,12 +85,14 @@ class MainWindow(QMainWindow):
     def closeEvent(self, *args, **kwargs):
         super(QMainWindow, self).closeEvent(*args, **kwargs)
         try:
-            print("terminating process{}".format(proc2))
-            proc2.terminate()
-            proc2.join()
-            # p.wait()
-            print("Process terminated.")
-            print("Process{}".format(proc2))
+            for file in os.scandir(basedir + "/source/tmp"):
+                os.remove(file)
+            # print("terminating process{}".format(proc2))
+            # proc2.terminate()
+            # proc2.join()
+            # # p.wait()
+            # print("Process terminated.")
+            # print("Process{}".format(proc2))
         except:
             print("Could not terminate python process")
 
@@ -222,6 +224,7 @@ class MainWindow(QMainWindow):
             conf.changeFile()
             # Update the blockchain
             conf.updateChain()
+            dm.diffDisplay()
             # Update the table
             self.getData()
         except Exception as e:

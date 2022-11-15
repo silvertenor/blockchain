@@ -44,7 +44,7 @@ def diffDisplay():
     except:
         pass
     tx = w3.eth.get_transaction(os.environ["file_tx"])
-    
+
     try:
         obj, params = dtContract.decode_function_input(tx["input"])
         old = zlib.decompress(base64.urlsafe_b64decode(params["_fileDiff"])).decode(
@@ -57,7 +57,12 @@ def diffDisplay():
     i = 1
     for diff in diffs:
         hist = dmp.patch_apply(dmp.patch_fromText(diff.decode()), old)[0]
-        with open("Device-xml-patch-{}".format(i), "w") as file:
+        with open(
+            os.path.join(
+                os.environ["basedir"], "source/tmp", "Device-xml-patch-{}".format(i)
+            ),
+            "w",
+        ) as file:
             file.write(hist)
         i += 1
         diffs = dmp.diff_main(old, hist)
