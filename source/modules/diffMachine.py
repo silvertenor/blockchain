@@ -63,13 +63,6 @@ def diffDisplay():
     displayDiffs = []
     for diff in diffs:
         hist = dmp.patch_apply(dmp.patch_fromText(diff.decode()), old)[0]
-        with open(
-            os.path.join(
-                os.environ["basedir"], "source/tmp", "Device-xml-patch-{}.xml".format(i)
-            ),
-            "w",
-        ) as file:
-            file.write(hist)
         i += 1
         differences = dmp.diff_main(old, hist)
         dmp.diff_cleanupEfficiency(differences)
