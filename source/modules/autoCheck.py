@@ -11,6 +11,4 @@ def main():
             for file in os.scandir(pathToSearch):
                 if ".xml" in file.path.lower():
                     chainChecker(file.path)
-                    # df = fileDiff()
-                    # print(df)
         sleep(5)

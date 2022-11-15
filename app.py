@@ -36,8 +36,7 @@ try:
         address=os.environ["contract_address"], abi=abi
     )  # our contract
 except Exception as e:
-    print("Could not load contract.")
-
+    logging.info("Could not load contract... Consider deploying a new one.")
 
 # Class for logging
 class QTextEditLogger(logging.Handler):

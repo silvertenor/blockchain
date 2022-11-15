@@ -31,14 +31,9 @@ def fileDiff(file):
     logging.info(
         "Traversing chain from most recent block to find your contract" "s history..."
     )
-    tx = w3.eth.get_transaction(os.environ["last_tx"])
-    print("LAST TX" + str(tx))
-    print(tx)
+    tx = w3.eth.get_transaction(os.environ["file_tx"])
     try:
         obj, params = dtContract.decode_function_input(tx["input"])
-        print("PARAMS HERE")
-        # print(params)
-        # exit()
         old = zlib.decompress(base64.urlsafe_b64decode(params["_fileDiff"])).decode(
             encoding="utf-8"
         )
@@ -47,19 +42,10 @@ def fileDiff(file):
         pass
     with open(file, "r", encoding="utf-8") as file:
         new = file.read()
-    # with open("demoFile.xml", "w", encoding="utf-8") as file:
-    #     file.write(old)
-    # with open("demoFileNew.xml", "w", encoding="utf-8") as file:
-    #     file.write(new)
     dmp = dmpModule.diff_match_patch()
     patch = dmp.patch_make(old, new)
-    diff = dmp.patch_toText(patch)
-    patches = dmp.patch_fromText(diff)
-    new_text, _ = dmp.patch_apply(patches, old)
-    print("LENGTH OF DIFF")
-    print(len(diff))
-
-    return diff
+    patch = dmp.patch_toText(patch)
+    return patch
 
 
 # Read file in chunks (future-proofing) and generate hash:
@@ -112,8 +98,6 @@ def updateBlockChain(contract, *args):
     ------
     N/A
     """
-    # print("Updating contract...")
-
     # Get latest transaction:
     nonce = w3.eth.getTransactionCount(
         os.environ["my_address"]
@@ -136,10 +120,7 @@ def updateBlockChain(contract, *args):
     send_store_tx = w3.eth.send_raw_transaction(signed_store_tx.rawTransaction)
     # Wait for receipt
     tx_receipt = w3.eth.wait_for_transaction_receipt(send_store_tx)
-    # print("TX RECEIPT")
     return tx_receipt["transactionHash"].hex()
-    # print("Updated!")
-    # print("New value of hash: " + dtContract.functions.retrieve().call()[0])
 
 
 def encrypt(paramToEncrypt):
@@ -223,16 +204,11 @@ def chainChecker(
     dtContract = w3.eth.contract(
         address=os.environ["contract_address"], abi=json.loads(os.environ["abi"])
     )
-    print("loaded addr: " + dtContract.address)
     on_chain_hash = dtContract.functions.retrieve().call()[0]
-    print("On-chain hash: {}".format(on_chain_hash))
     # Generate the hash of the log file
     device_hash = "0x" + hashGenerator(DEVICE_XML_PATH).hexdigest()
-    print("Local hash: {}".format(device_hash))
     # compare the two - if different, update the blockchain!
     if on_chain_hash != device_hash:
-        print("Different")
-        # print("DIFFERENCE DETECTED")
         # Gather metadata:
         user, domain, date_changed = (
             os.environ.get("USER"),  # logged in user
@@ -255,34 +231,43 @@ def chainChecker(
             contract_tx = os.environ["contract_tx"]
             # Random Tx value to not break program
             previousTxHash = last_tx
-            print("Updating Chain inside of here")
             if last_tx == contract_tx:
                 fileStuff = base64.urlsafe_b64encode(
                     zlib.compress(fileRead(DEVICE_XML_PATH), 9)
                 )
+                tx = updateBlockChain(
+                    dtContract,
+                    date_changed,
+                    device_hash,
+                    fileStuff,
+                    user,
+                    domain,
+                    previousTxHash,
+                )
+                txDict = {"Last Tx": tx, "File Tx": tx}
+                updateEnv(txDict)
+                os.environ["last_tx"] = tx
+                os.environ["file_tx"] = tx
             else:
                 fileStuff = base64.urlsafe_b64encode(
                     zlib.compress(bytes(fileDiff(DEVICE_XML_PATH), "utf-8"), 9)
                 )
-            print(fileStuff)
-            tx = updateBlockChain(
-                dtContract,
-                date_changed,
-                device_hash,
-                fileStuff,
-                user,
-                domain,
-                previousTxHash,
-            )
-            txDict = {"Last Tx": tx}
-            updateEnv(txDict)
-            os.environ["last_tx"] = tx
-            print("Updated")
+                logging.info("LENGTH OF FILESTUFF")
+                logging.info(len(fileStuff))
+                tx = updateBlockChain(
+                    dtContract,
+                    date_changed,
+                    device_hash,
+                    fileStuff,
+                    user,
+                    domain,
+                    previousTxHash,
+                )
+                txDict = {"Last Tx": tx}
+                updateEnv(txDict)
+                os.environ["last_tx"] = tx
+
         except Exception as e:
             logging.error("ERROR HERE")
             logging.error(e)
             # If our contract is brand new
-
-
-# else:
-#     # print("No change detected. Exiting program.")

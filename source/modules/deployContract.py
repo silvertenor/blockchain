@@ -61,7 +61,6 @@ def deployContract(bytecode, abi):
     nonce = w3.eth.getTransactionCount(
         os.environ["my_address"]
     )  # gives our nonce - number of transactions
-    # print(nonce)
     # 1. Build a transacton
     # 2. Sign a transaction
     # 3. Send a transaction
@@ -75,7 +74,6 @@ def deployContract(bytecode, abi):
     )
     signed_txn = w3.eth.account.sign_transaction(transaction, private_key=private_key)
     # send this signed transaction
-    print("Deploying contract...")
     tx_hash = w3.eth.send_raw_transaction(
         signed_txn.rawTransaction
     )  # Can now view this in 'transactions' in ganache
@@ -88,7 +86,6 @@ def deployContract(bytecode, abi):
     os.environ["contract_tx"] = tx
     # Get address of smart contract:
     os.environ["contract_address"] = tx_receipt.contractAddress
-    print("Deployed!")
 
     return os.environ["contract_address"]
 
@@ -102,7 +99,6 @@ def updateEnvLocal(contract_address):
 
 # Entry point
 def main():
-    print("In main")
     bytecode, abi = compileSolFile()
     contractAdd = deployContract(bytecode, abi)
     updateEnvLocal(contractAdd)
@@ -110,4 +106,3 @@ def main():
 
 
 end = datetime.datetime.now()
-print("Total execution time: {}".format(str(end - start)))
