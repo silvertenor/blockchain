@@ -55,6 +55,7 @@ def diffDisplay():
         pass
     dmp = dmpModule.diff_match_patch()
     i = 1
+    displayDiffs = []
     for diff in diffs:
         hist = dmp.patch_apply(dmp.patch_fromText(diff.decode()), old)[0]
         with open(
@@ -65,5 +66,7 @@ def diffDisplay():
         ) as file:
             file.write(hist)
         i += 1
-        diffs = dmp.diff_main(old, hist)
-        dmp.diff_cleanupEfficiency(diffs)
+        differences = dmp.diff_main(old, hist)
+        dmp.diff_cleanupEfficiency(differences)
+        displayDiffs.append(dmp.diff_prettyHtml(differences))
+    return displayDiffs[0]

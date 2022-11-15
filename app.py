@@ -127,10 +127,10 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(widget)
 
     # Function to display file differences
-    def show_new_window(self, checked):
-        filename = basedir + "/source/tmp/Device-xml-patch-2.xml"
+    def showDiffs(self, checked):
+        html = dm.diffDisplay()
         self.view = QWebEngineView()
-        self.view.load(QUrl.fromLocalFile(filename))
+        self.view.setHtml(html)
         self.view.show()
 
     def buttonInitialize(self):
@@ -156,7 +156,7 @@ class MainWindow(QMainWindow):
         configPushButton.clicked.connect(lambda: self.pushConfig())
         deployButton.setCheckable = True
         deployButton.clicked.connect(lambda: self.updateContract())
-        fileDiffButton.clicked.connect(self.show_new_window)
+        fileDiffButton.clicked.connect(self.showDiffs)
         saveCredentialButton.setCheckable = True
         saveCredentialButton.clicked.connect(lambda: self.updateCredentials())
 
@@ -228,7 +228,6 @@ class MainWindow(QMainWindow):
             conf.changeFile()
             # Update the blockchain
             conf.updateChain()
-            dm.diffDisplay()
             # Update the table
             self.getData()
         except Exception as e:
