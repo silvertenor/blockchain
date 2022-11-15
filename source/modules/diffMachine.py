@@ -11,6 +11,7 @@ def diffDisplay():
         dtContract = w3.eth.contract(
             address=os.environ["contract_address"], abi=json.loads(os.environ["abi"])
         )
+        print("CONTRACT ADDRESS" + os.environ["contract_address"])
         logging.info("Contract address loaded")
     except:
         logging.error(
@@ -74,4 +75,4 @@ def diffDisplay():
         dmp.diff_cleanupEfficiency(differences)
         displayDiffs.append(dmp.diff_prettyHtml(differences))
 
-    return displayDiffs[0], times
+    return displayDiffs, times

@@ -85,21 +85,30 @@ class TableModel(QAbstractTableModel):
 class DiffWindow(QWidget):
     def __init__(self):
         super().__init__()
+        # Parent layout of entire window
         layout = QVBoxLayout()
-        self.label = QLabel("Difference window")
-        html, timeChoices = dm.diffDisplay()
+        self.label = QLabel("Difference window")  # Title
+        # Layout of selection cbox and submit button
+        layoutSelect = QHBoxLayout()
         comboBox = QComboBox()
-        comboBox.addItems(timeChoices)
-        print(timeChoices)
+        # Get list of html and times with each diff change
+        self.html, timeChoices = dm.diffDisplay()
+        comboBox.addItems(timeChoices)  # add to cbox
+        layoutSelect.addWidget(comboBox)
+        comboBox.activated.connect(self.test)
+        # print(dict(zip(timeChoices, html)))
         # exit()
         self.view = QWebEngineView()
-        # self.view.add
-        self.view.setHtml(html)
         layout.addWidget(self.label)
-        layout.addWidget(comboBox)
+        layout.addLayout(layoutSelect)
         layout.addWidget(self.view)
+        self.view.setHtml("<hr>This is a test</hr>")
         self.setLayout(layout)
         # self.view.show()
+
+    def test(self, index):
+        self.view.setHtml(self.html[index])
+        # print('activated index', index)
 
 
 # Our window
@@ -150,8 +159,7 @@ class MainWindow(QMainWindow):
 
     # Function to display file differences
     def showDiffs(self, checked):
-        if self.diffWindow is None:
-            self.diffWindow = DiffWindow()
+        self.diffWindow = DiffWindow()
         self.diffWindow.show()
 
     def buttonInitialize(self):
