@@ -2,6 +2,7 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 from PyQt6.QtWebEngineWidgets import QWebEngineView
+from PyQt6.QtWebEngineQuick import *
 import logging
 import os, json, sys, signal
 from importlib import reload
@@ -330,7 +331,7 @@ def backgroun():
 
 
 if __name__ == "__main__":
-    multiprocessing.freeze_support()
+    # multiprocessing.freeze_support()
     # proc2 = multiprocessing.Process(target=backgroun)
     # proc2.daemon = True
     # proc2.start()
