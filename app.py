@@ -1,6 +1,7 @@
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
+from PyQt6.QtWebEngineWidgets import QWebEngineView
 import logging
 import os, json, sys, signal
 from importlib import reload
@@ -86,7 +87,8 @@ class MainWindow(QMainWindow):
         super(QMainWindow, self).closeEvent(*args, **kwargs)
         try:
             for file in os.scandir(basedir + "/source/tmp"):
-                os.remove(file)
+                # os.remove(file)
+                pass
             # print("terminating process{}".format(proc2))
             # proc2.terminate()
             # proc2.join()
@@ -124,16 +126,23 @@ class MainWindow(QMainWindow):
         # to take up all the space in the window by default.
         self.setCentralWidget(widget)
 
+    # Function to display file differences
+    def show_new_window(self, checked):
+        filename = basedir + "/source/tmp/Device-xml-patch-2.xml"
+        self.view = QWebEngineView()
+        self.view.load(QUrl.fromLocalFile(filename))
+        self.view.show()
+
     def buttonInitialize(self):
         # initialize our labels/buttons/tables
         queryButton = QPushButton("Query Chain")
         configPushButton = QPushButton("Publish New Configuration")
         deployButton = QPushButton("Deploy Contract")
-        checkButton = QPushButton("Check Configuration File")
+        fileDiffButton = QPushButton("See File History")
         saveCredentialButton = QPushButton("Save Changes")
         # Individual layout of buttons (tab 1)
         self.mainButtonLayout = QHBoxLayout()
-        self.mainButtonLayout.addWidget(checkButton)
+        self.mainButtonLayout.addWidget(fileDiffButton)
         self.mainButtonLayout.addWidget(configPushButton)
         self.mainButtonLayout.addWidget(queryButton)
         self.mainButtonLayout.addWidget(deployButton)
@@ -147,8 +156,7 @@ class MainWindow(QMainWindow):
         configPushButton.clicked.connect(lambda: self.pushConfig())
         deployButton.setCheckable = True
         deployButton.clicked.connect(lambda: self.updateContract())
-        checkButton.setCheckable = True
-        checkButton.clicked.connect(lambda: self.checkConfig())
+        fileDiffButton.clicked.connect(self.show_new_window)
         saveCredentialButton.setCheckable = True
         saveCredentialButton.clicked.connect(lambda: self.updateCredentials())
 
@@ -207,10 +215,6 @@ class MainWindow(QMainWindow):
         for row in rows:
             layout.addRow(QLabel(row), rows[row])
         self.formGroupBox.setLayout(layout)
-
-    def checkConfig(self):
-        uc.chainChecker()
-        self.getData()
 
     # Function to push config
     def pushConfig(self):
