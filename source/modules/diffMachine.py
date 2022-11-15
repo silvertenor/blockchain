@@ -1,6 +1,7 @@
 import diff_match_patch as dmpModule
 from .environmentSetup import *
 from .environmentUpdate import *
+from .updateChain import decrypt
 import logging, zlib, base64
 
 
@@ -30,6 +31,7 @@ def diffDisplay():
                     pvsTx = w3.eth.get_block(i)["transactions"][0].hex()
                     break
         diffs = []
+        times = []
         while pvsTx:
             tx = w3.eth.get_transaction(pvsTx)
             if tx != w3.eth.get_transaction(os.environ["file_tx"]):
@@ -37,8 +39,10 @@ def diffDisplay():
                 params["_fileDiff"] = zlib.decompress(
                     base64.urlsafe_b64decode(params["_fileDiff"])
                 )
+                params["_configChanged"] = decrypt(params["_configChanged"])
                 pvsTx = params["_previousTx"]
                 diffs.append(params["_fileDiff"])
+                times.append(params["_configChanged"])
             else:
                 pvsTx = False
     except:
@@ -69,4 +73,5 @@ def diffDisplay():
         differences = dmp.diff_main(old, hist)
         dmp.diff_cleanupEfficiency(differences)
         displayDiffs.append(dmp.diff_prettyHtml(differences))
-    return displayDiffs[0]
+
+    return displayDiffs[0], times

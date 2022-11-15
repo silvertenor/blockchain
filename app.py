@@ -81,6 +81,27 @@ class TableModel(QAbstractTableModel):
                 return str(self._data.index[section])
 
 
+# Diff Window
+class DiffWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        layout = QVBoxLayout()
+        self.label = QLabel("Difference window")
+        html, timeChoices = dm.diffDisplay()
+        comboBox = QComboBox()
+        comboBox.addItems(timeChoices)
+        print(timeChoices)
+        # exit()
+        self.view = QWebEngineView()
+        # self.view.add
+        self.view.setHtml(html)
+        layout.addWidget(self.label)
+        layout.addWidget(comboBox)
+        layout.addWidget(self.view)
+        self.setLayout(layout)
+        # self.view.show()
+
+
 # Our window
 class MainWindow(QMainWindow):
     def closeEvent(self, *args, **kwargs):
@@ -102,6 +123,7 @@ class MainWindow(QMainWindow):
         # initialize parent model
         super().__init__()
         self.layout = QVBoxLayout(self)
+        self.diffWindow = None  # initial state of extra window
         # set up our UI
         self.setWindowTitle("GEthereum")
         self.title = QLabel("GEthereum Main Window")
@@ -128,10 +150,9 @@ class MainWindow(QMainWindow):
 
     # Function to display file differences
     def showDiffs(self, checked):
-        html = dm.diffDisplay()
-        self.view = QWebEngineView()
-        self.view.setHtml(html)
-        self.view.show()
+        if self.diffWindow is None:
+            self.diffWindow = DiffWindow()
+        self.diffWindow.show()
 
     def buttonInitialize(self):
         # initialize our labels/buttons/tables
