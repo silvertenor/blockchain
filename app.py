@@ -112,6 +112,42 @@ class DiffWindow(QWidget):
         # print('activated index', index)
 
 
+# Admin control panel
+class AdminWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("PyQt6 SpreadSheet")
+        self.resize(400, 250)
+        self.show()
+
+        self.table = QTableWidget(3, 3)
+        self.table.setHorizontalHeaderLabels(["Name", "User", "Role"])
+
+        self.table.setItem(0, 0, QTableWidgetItem("Molly"))
+        self.table.setItem(0, 1, QTableWidgetItem("mollyward"))
+        self.table.setItem(0, 2, QTableWidgetItem("admin"))
+        self.table.setColumnWidth(0, 150)
+
+        self.table.setItem(1, 0, QTableWidgetItem("Paul"))
+        self.table.setItem(1, 1, QTableWidgetItem("paulcunningham"))
+        self.table.setItem(1, 2, QTableWidgetItem("admin"))
+
+        self.table.setItem(2, 0, QTableWidgetItem("Devin"))
+        self.table.setItem(2, 1, QTableWidgetItem("devinlane"))
+        self.table.setItem(2, 2, QTableWidgetItem("user"))
+
+        self.vBox = QGridLayout()
+        self.vBox.addWidget(QLabel("Name:"), 0, 0)
+        self.vBox.addWidget(QLineEdit(""), 0, 1)
+        self.vBox.addWidget(QLabel("User:"), 1, 0)
+        self.vBox.addWidget(QLineEdit(""), 1, 1)
+        self.vBox.addWidget(QLabel("Role:"), 2, 0)
+        self.vBox.addWidget(QLineEdit(""), 2, 1)
+        self.vBox.addWidget(QPushButton("Add User"), 3, 0, 2, 2)
+        self.vBox.addWidget(self.table, 5, 0, 2, 2)
+        self.setLayout(self.vBox)
+
+
 # Our window
 class MainWindow(QMainWindow):
     def closeEvent(self, *args, **kwargs):
@@ -133,7 +169,6 @@ class MainWindow(QMainWindow):
         # initialize parent model
         super().__init__()
         self.layout = QVBoxLayout(self)
-        self.diffWindow = None  # initial state of extra window
         # set up our UI
         self.setWindowTitle("GEthereum")
         self.title = QLabel("GEthereum Main Window")
@@ -158,6 +193,11 @@ class MainWindow(QMainWindow):
         # to take up all the space in the window by default.
         self.setCentralWidget(widget)
 
+    # Function to show admin window
+    def showAdminWindow(self):
+        self.adminWindow = AdminWindow()
+        self.adminWindow.show()
+
     # Function to display file differences
     def showDiffs(self, checked):
         self.diffWindow = DiffWindow()
@@ -170,8 +210,10 @@ class MainWindow(QMainWindow):
         deployButton = QPushButton("Deploy Contract")
         fileDiffButton = QPushButton("See File History")
         saveCredentialButton = QPushButton("Save Changes")
+        adminWindowButton = QPushButton("User Management")
         # Individual layout of buttons (tab 1)
         self.mainButtonLayout = QHBoxLayout()
+        self.mainButtonLayout.addWidget(adminWindowButton)
         self.mainButtonLayout.addWidget(fileDiffButton)
         self.mainButtonLayout.addWidget(configPushButton)
         self.mainButtonLayout.addWidget(queryButton)
@@ -189,6 +231,7 @@ class MainWindow(QMainWindow):
         fileDiffButton.clicked.connect(self.showDiffs)
         saveCredentialButton.setCheckable = True
         saveCredentialButton.clicked.connect(lambda: self.updateCredentials())
+        adminWindowButton.clicked.connect(self.showAdminWindow)
 
     # Set up logging box
     def logInitialize(self):
