@@ -221,7 +221,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         # initialize parent model
         super().__init__()
-        self.layout = QVBoxLayout(self)
+        self.layout = QVBoxLayout()
         # set up our UI
         self.setWindowTitle("GEthereum")
         self.title = QLabel("GEthereum Main Window")
