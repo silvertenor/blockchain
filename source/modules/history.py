@@ -13,6 +13,7 @@ def getHistory():
             address=os.environ["contract_address"], abi=json.loads(os.environ["abi"])
         )
         logging.info("Contract address loaded")
+        logging.info(dtContract.address)
     except:
         logging.error(
             "Could not find contract address. Either update .env or deploy new contract"
@@ -24,13 +25,17 @@ def getHistory():
     try:
         blockNumLastTx = w3.eth.get_transaction(os.environ["last_tx"])["blockNumber"]
         if blockNumLastTx == blockNumMostRecent:
-            pvsTx = w3.eth.get_block(blockNumMostRecent)["transactions"][0].hex()
+            searchRange = range(blockNumMostRecent, 0, -1)
         else:
-            for i in range(blockNumMostRecent, blockNumLastTx, -1):
-                toContract = w3.eth.get_transaction_by_block(i, 0)["to"]
-                if toContract == dtContract.address:
-                    pvsTx = w3.eth.get_block(i)["transactions"][0].hex()
-                    break
+            searchRange = range(blockNumMostRecent, blockNumLastTx, -1)
+        for i in searchRange:
+            toContract = w3.eth.get_transaction_by_block(i, 0)["to"]
+            if toContract == dtContract.address:
+                print("--------" * 5)
+                print(toContract)
+                print(dtContract.address)
+                pvsTx = w3.eth.get_block(i)["transactions"][0].hex()
+                break
         history = []
         while pvsTx:
             tx = w3.eth.get_transaction(pvsTx)

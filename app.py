@@ -148,6 +148,59 @@ class AdminWindow(QWidget):
         self.setLayout(self.vBox)
 
 
+class CredentialWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.layout = QVBoxLayout()
+        self.formGroupBox = QGroupBox()
+        self.accountAddress = QLineEdit()
+        self.privateKey = QLineEdit()
+        self.web3Provider = QLineEdit()
+        self.chainID = QLineEdit()
+        self.contractAddress = QLineEdit()
+        layout = QFormLayout()
+        rows = {
+            "Account Address": self.accountAddress,
+            "Private Key": self.privateKey,
+            "Web3 Provider": self.web3Provider,
+            "Chain ID": self.chainID,
+            "Contract Address": self.contractAddress,
+        }
+        for row in rows:
+            layout.addRow(QLabel(row), rows[row])
+        self.formGroupBox.setLayout(layout)
+        saveCredentialButton = QPushButton("Save Changes")
+        self.credButtonLayout = QHBoxLayout()
+        self.credButtonLayout.addWidget(saveCredentialButton)
+        saveCredentialButton.setCheckable = True
+        saveCredentialButton.clicked.connect(lambda: self.updateCredentials())
+        self.layout.addWidget(self.formGroupBox)
+        self.layout.addWidget(saveCredentialButton)
+        self.setLayout(self.layout)
+        # self.setCentralWidget(widget)
+
+    def updateCredentials(self):
+        updateDict = {}
+        formList = self.formGroupBox.children()
+        for key, nextVal in enumerate(formList):
+            if isinstance(nextVal, QLabel):
+                if formList[key + 1].text():
+                    updateDict[nextVal.text()] = formList[key + 1].text()
+
+        if updateDict:
+            # Update environment variables
+            eu.updateEnv(updateDict)
+            # Quit app
+            QCoreApplication.quit()
+            # Start new instance of application
+
+            # Reload .env file
+            reload(es)
+            status = QProcess.startDetached(sys.executable, sys.argv)
+            # Terminate current app
+            signal.signal(signal.SIGQUIT, sigquit_handler)
+
+
 # Our window
 class MainWindow(QMainWindow):
     def closeEvent(self, *args, **kwargs):
@@ -173,8 +226,6 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("GEthereum")
         self.title = QLabel("GEthereum Main Window")
         self.title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        # Initialize credential form
-        self.createForm()
         # Initialize all buttons
         self.buttonInitialize()
         # Initialize logbox
@@ -203,24 +254,29 @@ class MainWindow(QMainWindow):
         self.diffWindow = DiffWindow()
         self.diffWindow.show()
 
+    def showCredentialWindow(self):
+        self.credWindow = CredentialWindow()
+        self.credWindow.show()
+
     def buttonInitialize(self):
         # initialize our labels/buttons/tables
         queryButton = QPushButton("Query Chain")
         configPushButton = QPushButton("Publish New Configuration")
         deployButton = QPushButton("Deploy Contract")
         fileDiffButton = QPushButton("See File History")
-        saveCredentialButton = QPushButton("Save Changes")
         adminWindowButton = QPushButton("User Management")
+        openCredentialButton = QPushButton("Update Credentials")
         # Individual layout of buttons (tab 1)
         self.mainButtonLayout = QHBoxLayout()
-        self.mainButtonLayout.addWidget(adminWindowButton)
         self.mainButtonLayout.addWidget(fileDiffButton)
         self.mainButtonLayout.addWidget(configPushButton)
         self.mainButtonLayout.addWidget(queryButton)
         self.mainButtonLayout.addWidget(deployButton)
+        # Layout of tab 2
+        self.configButtonLayout = QVBoxLayout()
+        self.configButtonLayout.addWidget(adminWindowButton)
+        self.configButtonLayout.addWidget(openCredentialButton)
         # Layout of buttons (tab 2)
-        self.credButtonLayout = QHBoxLayout()
-        self.credButtonLayout.addWidget(saveCredentialButton)
         # Define backend functions for our buttons when pushed
         queryButton.setCheckable = True
         queryButton.clicked.connect(lambda: self.getData())
@@ -229,9 +285,10 @@ class MainWindow(QMainWindow):
         deployButton.setCheckable = True
         deployButton.clicked.connect(lambda: self.updateContract())
         fileDiffButton.clicked.connect(self.showDiffs)
-        saveCredentialButton.setCheckable = True
-        saveCredentialButton.clicked.connect(lambda: self.updateCredentials())
+        adminWindowButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         adminWindowButton.clicked.connect(self.showAdminWindow)
+        openCredentialButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        openCredentialButton.clicked.connect(self.showCredentialWindow)
 
     # Set up logging box
     def logInitialize(self):
@@ -249,15 +306,14 @@ class MainWindow(QMainWindow):
         self.tab1 = QWidget()
         self.tab2 = QWidget()
         self.tabs.addTab(self.tab1, "Main View")
-        self.tabs.addTab(self.tab2, "Credential Manager")
+        self.tabs.addTab(self.tab2, "Configuration")
         # Total layout of pages
         self.tab1.layout = QVBoxLayout()
         self.tab2.layout = QVBoxLayout()
-        tab2Title = QLabel("Credential Management")
+        tab2Title = QLabel("Configuration Message")
         tab2Title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.tab2.layout.addWidget(tab2Title)
-        self.tab2.layout.addWidget(self.formGroupBox)
-        self.tab2.layout.addLayout(self.credButtonLayout)
+        self.tab2.layout.addLayout(self.configButtonLayout)
         # add our widgets to each layout
         self.tab1.layout.addWidget(self.title)
         self.tab1.layout.addLayout(self.mainButtonLayout)
@@ -267,27 +323,6 @@ class MainWindow(QMainWindow):
         self.tab1.layout.addWidget(self.logBox.widget)
         self.tab1.setLayout(self.tab1.layout)
         self.tab2.setLayout(self.tab2.layout)
-
-    # Function to create form
-    def createForm(self):
-        # Form to update environment file
-        self.formGroupBox = QGroupBox()
-        self.accountAddress = QLineEdit()
-        self.privateKey = QLineEdit()
-        self.web3Provider = QLineEdit()
-        self.chainID = QLineEdit()
-        self.contractAddress = QLineEdit()
-        layout = QFormLayout()
-        rows = {
-            "Account Address": self.accountAddress,
-            "Private Key": self.privateKey,
-            "Web3 Provider": self.web3Provider,
-            "Chain ID": self.chainID,
-            "Contract Address": self.contractAddress,
-        }
-        for row in rows:
-            layout.addRow(QLabel(row), rows[row])
-        self.formGroupBox.setLayout(layout)
 
     # Function to push config
     def pushConfig(self):
@@ -340,26 +375,6 @@ class MainWindow(QMainWindow):
                     "An error occured when deploying the contract or querying the chain. Please make sure you have a valid connection to the server and that your .env file is up to date."
                 )
             )
-
-    def updateCredentials(self):
-        updateDict = {}
-        formList = self.formGroupBox.children()
-        for key, nextVal in enumerate(formList):
-            if isinstance(nextVal, QLabel):
-                if formList[key + 1].text():
-                    updateDict[nextVal.text()] = formList[key + 1].text()
-
-        if updateDict:
-            # Update environment variables
-            eu.updateEnv(updateDict)
-            # Quit app
-            QCoreApplication.quit()
-            # Start new instance of application
-            status = QProcess.startDetached(sys.executable, sys.argv)
-            # Reload .env file
-            reload(es)
-            # Terminate current app
-            signal.signal(signal.SIGQUIT, sigquit_handler)
 
 
 def sigquit_handler(signum, frame):
