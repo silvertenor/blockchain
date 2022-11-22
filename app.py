@@ -19,6 +19,7 @@ import source.modules.environmentUpdate as eu
 import source.modules.updateChain as uc
 import source.modules.autoCheck as ac
 import source.modules.diffMachine as dm
+import source.modules.userManagement as um
 
 # Set up
 with open(os.path.join(basedir, "source", "compiled_code.json"), "r") as file:
@@ -116,36 +117,54 @@ class DiffWindow(QWidget):
 class AdminWindow(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("PyQt6 SpreadSheet")
-        self.resize(400, 250)
+        # housekeeping
+        self.setWindowTitle("Account Management")
+        self.resize(400, 400)
         self.show()
-
-        self.table = QTableWidget(3, 3)
-        self.table.setHorizontalHeaderLabels(["Name", "User", "Role"])
-
-        self.table.setItem(0, 0, QTableWidgetItem("Molly"))
-        self.table.setItem(0, 1, QTableWidgetItem("mollyward"))
-        self.table.setItem(0, 2, QTableWidgetItem("admin"))
-        self.table.setColumnWidth(0, 150)
-
-        self.table.setItem(1, 0, QTableWidgetItem("Paul"))
-        self.table.setItem(1, 1, QTableWidgetItem("paulcunningham"))
-        self.table.setItem(1, 2, QTableWidgetItem("admin"))
-
-        self.table.setItem(2, 0, QTableWidgetItem("Devin"))
-        self.table.setItem(2, 1, QTableWidgetItem("devinlane"))
-        self.table.setItem(2, 2, QTableWidgetItem("user"))
-
-        self.vBox = QGridLayout()
-        self.vBox.addWidget(QLabel("Name:"), 0, 0)
-        self.vBox.addWidget(QLineEdit(""), 0, 1)
-        self.vBox.addWidget(QLabel("User:"), 1, 0)
-        self.vBox.addWidget(QLineEdit(""), 1, 1)
-        self.vBox.addWidget(QLabel("Role:"), 2, 0)
-        self.vBox.addWidget(QLineEdit(""), 2, 1)
-        self.vBox.addWidget(QPushButton("Add User"), 3, 0, 2, 2)
-        self.vBox.addWidget(self.table, 5, 0, 2, 2)
+        # Set up form
+        self.setUpForm()
+        # Button to save form:
+        self.saveButton = QPushButton("Commit")
+        self.saveButton.setCheckable = True
+        self.saveButton.clicked.connect(lambda: self.addAccount())
+        # Set up table
+        self.table = QTableView()
+        self.updateTable()
+        # Configure layout
+        self.vBox = QVBoxLayout()
+        self.vBox.addWidget(self.formGroupBox)
+        self.vBox.addWidget(self.saveButton)
+        self.vBox.addWidget(self.table)
         self.setLayout(self.vBox)
+
+    def setUpForm(self):
+        self.formGroupBox = QGroupBox()
+        self.name = QLineEdit()
+        self.account = QLineEdit()
+        self.role = QComboBox()
+        layout = QFormLayout()
+        rows = {"User": self.name, "Account Address": self.account, "Role": self.role}
+        for row in rows:
+            layout.addRow(QLabel(row), rows[row])
+        choices = ["User", "Admin"]
+        self.role.addItems(choices)
+        self.formGroupBox.setLayout(layout)
+
+    def addAccount(self):
+        name = self.name.text()
+        account = self.account.text()
+        role = self.role.currentText()
+        um.add(name, account, role)
+        self.updateTable()
+
+    def updateTable(self):
+        admins = um.query()
+        self.model = TableModel(admins)
+        self.table.setModel(self.model)
+        width = self.frameGeometry().width()
+        for i in range(0, admins.shape[1]):
+            self.table.setColumnWidth(i, width // admins.shape[1])
+        logging.info("Table Updated!")
 
 
 class CredentialWindow(QWidget):

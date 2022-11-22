@@ -23,11 +23,13 @@ def getHistory():
     )
     blockNumMostRecent = w3.eth.block_number
     try:
-        blockNumLastTx = w3.eth.get_transaction(os.environ["last_tx"])["blockNumber"]
-        if blockNumLastTx == blockNumMostRecent:
+        blockNumContractTx = w3.eth.get_transaction(os.environ["contract_tx"])[
+            "blockNumber"
+        ]
+        if blockNumContractTx == blockNumMostRecent:
             searchRange = range(blockNumMostRecent, 0, -1)
         else:
-            searchRange = range(blockNumMostRecent, blockNumLastTx, -1)
+            searchRange = range(blockNumMostRecent, blockNumContractTx, -1)
         for i in searchRange:
             toContract = w3.eth.get_transaction_by_block(i, 0)["to"]
             if toContract == dtContract.address:
@@ -37,18 +39,28 @@ def getHistory():
                 pvsTx = w3.eth.get_block(i)["transactions"][0].hex()
                 break
         history = []
+        txFlag = False
         while pvsTx:
-            tx = w3.eth.get_transaction(pvsTx)
+            if not txFlag:
+                tx = w3.eth.get_transaction(pvsTx)
             try:
                 obj, params = dtContract.decode_function_input(tx["input"])
-                params["_configChanged"] = decrypt(params["_configChanged"])
-                params["_userID"] = decrypt(params["_userID"])
-                params["_domain"] = decrypt(params["_domain"])
-                params["_fileDiff"] = zlib.decompress(
-                    base64.urlsafe_b64decode(params["_fileDiff"])
-                )
-                pvsTx = params["_previousTx"]
-                history.append(params)
+                if "_configChanged" in params:
+                    txFlag = False
+                    params["_configChanged"] = decrypt(params["_configChanged"])
+                    params["_userID"] = decrypt(params["_userID"])
+                    params["_domain"] = decrypt(params["_domain"])
+                    params["_fileDiff"] = zlib.decompress(
+                        base64.urlsafe_b64decode(params["_fileDiff"])
+                    )
+                    pvsTx = params["_previousTx"]
+                    history.append(params)
+                else:
+                    print(pvsTx)
+                    print(tx["blockNumber"])
+                    txFlag = True
+                    tx = w3.eth.get_transaction_by_block(tx["blockNumber"] - 1, 0)
+
             except:
                 pvsTx = False
         df = pd.DataFrame(history)
