@@ -2,7 +2,7 @@ import os
 from .updateChain import *
 from time import sleep
 
-
+# Iterate through folder to find changed files (every 5 seconds)
 def main():
     while True:
         basedir = os.environ["basedir"]

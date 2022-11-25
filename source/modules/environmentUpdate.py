@@ -1,6 +1,6 @@
 from .environmentSetup import *
 
-
+# Update .env file based on new values
 def updateEnv(updateDict):
     basedir = os.environ["basedir"]
     for key in updateDict:
