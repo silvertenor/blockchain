@@ -33,6 +33,7 @@ def diffDisplay():
                     break
         diffs = []
         times = []
+        names = []
         while pvsTx:
             tx = w3.eth.get_transaction(pvsTx)
             if tx != w3.eth.get_transaction(os.environ["file_tx"]):
@@ -43,6 +44,7 @@ def diffDisplay():
                 params["_configChanged"] = decrypt(params["_configChanged"])
                 pvsTx = params["_previousTx"]
                 diffs.append(params["_fileDiff"])
+                names.append(decrypt(params["_userID"]))
                 times.append(params["_configChanged"])
             else:
                 pvsTx = False
@@ -67,5 +69,6 @@ def diffDisplay():
         differences = dmp.diff_main(old, hist)
         dmp.diff_cleanupEfficiency(differences)
         displayDiffs.append(dmp.diff_prettyHtml(differences))
-
-    return displayDiffs, times
+    labels = [i + " - " + j for i, j in zip(times, names)]
+    print(times)
+    return displayDiffs, labels

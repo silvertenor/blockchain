@@ -8,20 +8,20 @@ import os, json, sys, signal
 from importlib import reload
 import shutil, multiprocessing
 
+# Set our base directory:
 basedir = os.path.dirname(__file__)
 os.environ["basedir"] = basedir
-# Import custom module
+# Import custom modules
 import source.modules.history as hist
 import source.modules.configPush as conf
 import source.modules.deployContract as dc
 import source.modules.environmentSetup as es
 import source.modules.environmentUpdate as eu
-import source.modules.updateChain as uc
 import source.modules.autoCheck as ac
 import source.modules.diffMachine as dm
 import source.modules.userManagement as um
 
-# Set up
+# Read in compiled contract code
 with open(os.path.join(basedir, "source", "compiled_code.json"), "r") as file:
     contractInfo = json.load(file)
 
@@ -48,7 +48,7 @@ class QTextEditLogger(logging.Handler):
         self.widget = QPlainTextEdit(parent)
         self.widget.setReadOnly(True)
         self.widget.setMaximumSize(
-            self.widget.maximumSize().width(), parent.frameSize().height() // 6
+            self.widget.maximumSize().width(), parent.frameSize().height() // 5
         )
 
     def emit(self, record):
@@ -56,7 +56,7 @@ class QTextEditLogger(logging.Handler):
         self.widget.appendPlainText(msg)
 
 
-# Our table - based on pandas DF
+# Main table that shows all fields in blockchain:
 class TableModel(QAbstractTableModel):
     def __init__(self, data):
         super(TableModel, self).__init__()
@@ -89,28 +89,27 @@ class DiffWindow(QWidget):
         super().__init__()
         # Parent layout of entire window
         layout = QVBoxLayout()
-        self.label = QLabel("Difference window")  # Title
+        self.label = QLabel("File History")  # Title
         # Layout of selection cbox and submit button
         layoutSelect = QHBoxLayout()
         comboBox = QComboBox()
-        # Get list of html and times with each diff change
-        self.html, timeChoices = dm.diffDisplay()
-        comboBox.addItems(timeChoices)  # add to cbox
+        # Get list of html and labels (time + username) with each change
+        self.html, labels = dm.diffDisplay()
+        comboBox.addItems(labels)  # add to cbox
         layoutSelect.addWidget(comboBox)
-        comboBox.activated.connect(self.test)
-        # print(dict(zip(timeChoices, html)))
-        # exit()
+        comboBox.activated.connect(self.updatePrettyDiff)
+        # Initialize view - must be web engine for html
         self.view = QWebEngineView()
         layout.addWidget(self.label)
         layout.addLayout(layoutSelect)
         layout.addWidget(self.view)
-        self.view.setHtml("<hr>This is a test</hr>")
+        # Initial message:
+        self.view.setHtml("<hr>Please make a selection to update this view.</hr>")
         self.setLayout(layout)
-        # self.view.show()
 
-    def test(self, index):
+    # Function to update displayed HTML
+    def updatePrettyDiff(self, index):
         self.view.setHtml(self.html[index])
-        # print('activated index', index)
 
 
 # Admin control panel
@@ -123,7 +122,7 @@ class AdminWindow(QWidget):
         self.show()
         # Set up form
         self.setUpForm()
-        # Button to save form:
+        # Button to save new user:
         self.saveButton = QPushButton("Commit")
         self.saveButton.setCheckable = True
         self.saveButton.clicked.connect(lambda: self.addAccount())
@@ -137,8 +136,10 @@ class AdminWindow(QWidget):
         self.vBox.addWidget(self.table)
         self.setLayout(self.vBox)
 
+    # Function to set up form inside admin panel - fields to fill out!
     def setUpForm(self):
         self.formGroupBox = QGroupBox()
+        # User's name, account address, and role (admin/user)
         self.name = QLineEdit()
         self.account = QLineEdit()
         self.role = QComboBox()
@@ -150,6 +151,7 @@ class AdminWindow(QWidget):
         self.role.addItems(choices)
         self.formGroupBox.setLayout(layout)
 
+    # If 'commit' button clicked, run this to add user/admin to SC library:
     def addAccount(self):
         name = self.name.text()
         account = self.account.text()
@@ -157,6 +159,7 @@ class AdminWindow(QWidget):
         um.add(name, account, role)
         self.updateTable()
 
+    # Update the table with admin/user records
     def updateTable(self):
         admins = um.query()
         self.model = TableModel(admins)
@@ -225,15 +228,13 @@ class MainWindow(QMainWindow):
     def closeEvent(self, *args, **kwargs):
         super(QMainWindow, self).closeEvent(*args, **kwargs)
         try:
-            for file in os.scandir(basedir + "/source/tmp"):
-                # os.remove(file)
-                pass
-            # print("terminating process{}".format(proc2))
-            # proc2.terminate()
-            # proc2.join()
-            # # p.wait()
-            # print("Process terminated.")
-            # print("Process{}".format(proc2))
+            pass
+            print("terminating process{}".format(proc2))
+            proc2.terminate()
+            proc2.join()
+            # p.wait()
+            print("Process terminated.")
+            print("Process{}".format(proc2))
         except:
             print("Could not terminate python process")
 
@@ -400,18 +401,16 @@ def sigquit_handler(signum, frame):
     sys.exit(app.exec_())
 
 
-# p = subprocess.Popen(["python", "process.py"])
-
-
-def backgroun():
+def background():
     ac.main()
 
 
+# Entrypoint:
 if __name__ == "__main__":
-    # multiprocessing.freeze_support()
-    # proc2 = multiprocessing.Process(target=backgroun)
-    # proc2.daemon = True
-    # proc2.start()
+    multiprocessing.freeze_support()
+    proc2 = multiprocessing.Process(target=background)
+    proc2.daemon = True
+    proc2.start()
 
     app = QApplication([])
     window = MainWindow()
