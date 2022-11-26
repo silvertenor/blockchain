@@ -60,7 +60,6 @@ def getHistory():
                     print(tx["blockNumber"])
                     txFlag = True
                     tx = w3.eth.get_transaction_by_block(tx["blockNumber"] - 1, 0)
-
             except:
                 pvsTx = False
         df = pd.DataFrame(history)
@@ -85,6 +84,7 @@ def getHistory():
             },
             inplace=True,
         )
+
         return df
     except Exception as e:
         logging.error(

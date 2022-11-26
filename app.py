@@ -407,10 +407,10 @@ def background():
 
 # Entrypoint:
 if __name__ == "__main__":
-    multiprocessing.freeze_support()
-    proc2 = multiprocessing.Process(target=background)
-    proc2.daemon = True
-    proc2.start()
+    # multiprocessing.freeze_support()
+    # proc2 = multiprocessing.Process(target=background)
+    # proc2.daemon = True
+    # proc2.start()
 
     app = QApplication([])
     window = MainWindow()
