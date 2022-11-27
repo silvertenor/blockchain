@@ -1,1 +1,0 @@
-../Resources/tkConfig.sh

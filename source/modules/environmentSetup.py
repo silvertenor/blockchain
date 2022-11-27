@@ -23,13 +23,15 @@ try:
         os.environ["contract_address"] = os.getenv(
             "CONTRACT_ADDRESS"
         )  # our contract's address
-        buttonsAllowed = True
+        os.environ["last_tx"] = os.getenv("LAST_TX")  # Most recent tx
+        os.environ["contract_tx"] = os.getenv("CONTRACT_TX")
+        os.environ["file_tx"] = os.getenv("FILE_TX")
     # Change to proper working directory
     except:
         buttonsAllowed = False
 
 except Exception as e:
-    print(e)
+    logging.error(e)
     logging.error(
         "Could not find certain environment variables. Please make sure .env is up to date."
     )

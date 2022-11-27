@@ -1,12 +1,53 @@
 from dateutil.parser import parse
-import hashlib
+import hashlib, zlib, base64
 
 from .environmentSetup import *
+from .environmentUpdate import *
 from cryptography.fernet import Fernet
 import os, socket
+import pandas as pd
 from datetime import datetime
+import diff_match_patch as dmpModule
 
 basedir = os.environ["basedir"]
+# Read the file to upload to chain
+def fileRead(file):
+    with open(file, "rb") as file:
+        contents = file.read()
+    return contents
+
+
+# Get diff of file
+def fileDiff(file):
+    try:
+        dtContract = w3.eth.contract(
+            address=os.environ["contract_address"], abi=json.loads(os.environ["abi"])
+        )
+        logging.info("Contract address loaded")
+    except:
+        logging.error(
+            "Could not find contract address. Either update .env or deploy new contract"
+        )
+    logging.info(
+        "Traversing chain from most recent block to find your contract" "s history..."
+    )
+    tx = w3.eth.get_transaction(os.environ["file_tx"])
+    try:
+        obj, params = dtContract.decode_function_input(tx["input"])
+        old = zlib.decompress(base64.urlsafe_b64decode(params["_fileDiff"])).decode(
+            encoding="utf-8"
+        )
+    except Exception as e:
+        logging.error(e + "In source.modules.updateChain.fileDiff()")
+        pass
+    with open(file, "r", encoding="utf-8") as file:
+        new = file.read()
+    dmp = dmpModule.diff_match_patch()
+    patch = dmp.patch_make(old, new)
+    patch = dmp.patch_toText(patch)
+    return patch
+
+
 # Read file in chunks (future-proofing) and generate hash:
 def hashGenerator(file, buffer_size=65536):
     """
@@ -57,8 +98,6 @@ def updateBlockChain(contract, *args):
     ------
     N/A
     """
-    # print("Updating contract...")
-
     # Get latest transaction:
     nonce = w3.eth.getTransactionCount(
         os.environ["my_address"]
@@ -81,9 +120,7 @@ def updateBlockChain(contract, *args):
     send_store_tx = w3.eth.send_raw_transaction(signed_store_tx.rawTransaction)
     # Wait for receipt
     tx_receipt = w3.eth.wait_for_transaction_receipt(send_store_tx)
-    # print(tx_receipt)
-    # print("Updated!")
-    # print("New value of hash: " + dtContract.functions.retrieve().call()[0])
+    return tx_receipt["transactionHash"].hex()
 
 
 def encrypt(paramToEncrypt):
@@ -167,15 +204,11 @@ def chainChecker(
     dtContract = w3.eth.contract(
         address=os.environ["contract_address"], abi=json.loads(os.environ["abi"])
     )
-    print("loaded addr: " + dtContract.address)
     on_chain_hash = dtContract.functions.retrieve().call()[0]
-    print("On-chain hash: {}".format(on_chain_hash))
     # Generate the hash of the log file
     device_hash = "0x" + hashGenerator(DEVICE_XML_PATH).hexdigest()
-    print("Local hash: {}".format(device_hash))
     # compare the two - if different, update the blockchain!
     if on_chain_hash != device_hash:
-        # print("DIFFERENCE DETECTED")
         # Gather metadata:
         user, domain, date_changed = (
             os.environ.get("USER"),  # logged in user
@@ -193,30 +226,48 @@ def chainChecker(
             encrypt(date_changed),
         )
         # Update blockchain
-        blockNum = w3.eth.block_number
-        for i in range(blockNum, 0, -1):
-            toContract = w3.eth.get_transaction_by_block(i, 0)["to"]
-            # If our contract already has been modified
-            if toContract == dtContract.address:
-                # Get previous tx hash
-                previousTxHash = w3.eth.get_block(i)["transactions"][0].hex()
-                # print(previousTxHash)
-                print("Updating Chain")
-                # Update blockchain
-                updateBlockChain(
-                    dtContract, date_changed, device_hash, user, domain, previousTxHash
+        try:
+            last_tx = os.environ["last_tx"]
+            contract_tx = os.environ["contract_tx"]
+            # Random Tx value to not break program
+            previousTxHash = last_tx
+            if last_tx == contract_tx:
+                fileStuff = base64.urlsafe_b64encode(
+                    zlib.compress(fileRead(DEVICE_XML_PATH), 9)
                 )
-                print("Updated")
-                break
-            else:  # If our contract is brand new
-                # Random Tx value to not break program
-                previousTxHash = w3.eth.get_block("latest")["transactions"][0].hex()
-                print("Updating Chain")
-                # Update blockchain
-                updateBlockChain(
-                    dtContract, date_changed, device_hash, user, domain, previousTxHash
+                tx = updateBlockChain(
+                    dtContract,
+                    date_changed,
+                    device_hash,
+                    fileStuff,
+                    user,
+                    domain,
+                    previousTxHash,
                 )
-                print("Updated")
-                break
-    # else:
-    #     # print("No change detected. Exiting program.")
+                txDict = {"Last Tx": tx, "File Tx": tx}
+                updateEnv(txDict)
+                os.environ["last_tx"] = tx
+                os.environ["file_tx"] = tx
+            else:
+                fileStuff = base64.urlsafe_b64encode(
+                    zlib.compress(bytes(fileDiff(DEVICE_XML_PATH), "utf-8"), 9)
+                )
+                logging.info("LENGTH OF FILESTUFF")
+                logging.info(len(fileStuff))
+                tx = updateBlockChain(
+                    dtContract,
+                    date_changed,
+                    device_hash,
+                    fileStuff,
+                    user,
+                    domain,
+                    previousTxHash,
+                )
+                txDict = {"Last Tx": tx}
+                updateEnv(txDict)
+                os.environ["last_tx"] = tx
+
+        except Exception as e:
+            logging.error("ERROR HERE")
+            logging.error(e)
+            # If our contract is brand new

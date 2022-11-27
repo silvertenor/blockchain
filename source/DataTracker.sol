@@ -45,25 +45,58 @@ contract DataTracker {
     Roles.Role private users;
     Roles.Role private admins;
 
+    address[] private allAdmins;
+    address[] private allUsers;
+
     constructor() public {
         admins.add(msg.sender);
         users.add(msg.sender);
+        allAdmins.push(msg.sender);
+        allUsers.push(msg.sender);
     }
 
     function addUser(address _newUser) external onlyAdmins {
         users.add(_newUser);
+        allUsers.push(_newUser);
     }
 
     function addAdmin(address _newAdmin) external onlyAdmins {
         admins.add(_newAdmin);
+        allAdmins.push(_newAdmin);
     }
 
     function removeAdmin(address _oldAdmin) external onlyAdmins {
         admins.remove(_oldAdmin);
+        uint256 i = 0;
+        while (allAdmins[i] != _oldAdmin) {
+            i++;
+        }
+        while (i < allAdmins.length - 1) {
+            allAdmins[i] = allAdmins[i + 1];
+            i++;
+        }
+        allAdmins.pop();
     }
 
     function removeUser(address _oldUser) external onlyAdmins {
         users.remove(_oldUser);
+        uint256 i = 0;
+        while (allUsers[i] != _oldUser) {
+            i++;
+        }
+        while (i < allUsers.length - 1) {
+            allUsers[i] = allUsers[i + 1];
+            i++;
+        }
+        allUsers.pop();
+    }
+
+    function viewAdmins() public view onlyAdmins returns (address[] memory) {
+        return (allAdmins);
+    }
+
+    function viewUsers() public view onlyAdmins returns (address[] memory) {
+        return (allUsers);
     }
 
     modifier onlyUsers() {
@@ -80,6 +113,7 @@ contract DataTracker {
         // assosiate date/time with hash number
         string configChanged;
         string hashNumber;
+        string fileDiff;
         string userID;
         string domain;
         string previousTx;
@@ -93,6 +127,7 @@ contract DataTracker {
     function addConfig(
         string memory _configChanged,
         string memory _hashNumber,
+        string memory _fileDiff,
         string memory _userID,
         string memory _domain,
         string memory _previousTx
@@ -100,6 +135,7 @@ contract DataTracker {
         config = ControllerData(
             _configChanged,
             _hashNumber,
+            _fileDiff,
             _userID,
             _domain,
             _previousTx
