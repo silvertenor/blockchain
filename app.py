@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebEngineQuick import *
 import logging
+import pandas as pd
 import os, json, sys, signal
 from importlib import reload
 import shutil, multiprocessing
@@ -68,10 +69,18 @@ class TableModel(QAbstractTableModel):
             return str(value)
 
     def rowCount(self, index):
-        return self._data.shape[0]
+        try:
+            return self._data.shape[0]
+        except Exception as e:
+            logging.error(e)
+            return 0
 
     def columnCount(self, index):
-        return self._data.shape[1]
+        try:
+            return self._data.shape[1]
+        except Exception as e:
+            logging.error(e)
+            return 0
 
     def headerData(self, section, orientation, role):
         # section is the index of the column/row.
@@ -153,21 +162,30 @@ class AdminWindow(QWidget):
 
     # If 'commit' button clicked, run this to add user/admin to SC library:
     def addAccount(self):
-        name = self.name.text()
-        account = self.account.text()
-        role = self.role.currentText()
-        um.add(name, account, role)
-        self.updateTable()
+        try:
+            name = self.name.text()
+            account = self.account.text()
+            role = self.role.currentText()
+            um.add(name, account, role)
+            self.updateTable()
+        except Exception as e:
+            logging.error(e)
 
     # Update the table with admin/user records
     def updateTable(self):
-        admins = um.query()
-        self.model = TableModel(admins)
-        self.table.setModel(self.model)
-        width = self.frameGeometry().width()
-        for i in range(0, admins.shape[1]):
-            self.table.setColumnWidth(i, width // admins.shape[1])
-        logging.info("Table Updated!")
+        try:
+            admins = um.query()
+            self.model = TableModel(admins)
+            self.table.setModel(self.model)
+            width = self.frameGeometry().width()
+            for i in range(0, admins.shape[1]):
+                self.table.setColumnWidth(i, width // admins.shape[1])
+            logging.info("Table Updated!")
+        except Exception as e:
+            self.model = TableModel(pd.DataFrame())
+            self.table.setModel(self.model)
+            width = self.frameGeometry().width()
+            logging.error(e)
 
 
 class CredentialWindow(QWidget):
@@ -264,20 +282,6 @@ class MainWindow(QMainWindow):
         # to take up all the space in the window by default.
         self.setCentralWidget(widget)
 
-    # Function to show admin window
-    def showAdminWindow(self):
-        self.adminWindow = AdminWindow()
-        self.adminWindow.show()
-
-    # Function to display file differences
-    def showDiffs(self, checked):
-        self.diffWindow = DiffWindow()
-        self.diffWindow.show()
-
-    def showCredentialWindow(self):
-        self.credWindow = CredentialWindow()
-        self.credWindow.show()
-
     def buttonInitialize(self):
         # initialize our labels/buttons/tables
         queryButton = QPushButton("Query Chain")
@@ -313,12 +317,17 @@ class MainWindow(QMainWindow):
     # Set up logging box
     def logInitialize(self):
         # Log view
-        self.logBox = QTextEditLogger(self)
-        self.logBox.setFormatter(
+        self.logBox1 = QTextEditLogger(self)
+        self.logBox1.setFormatter(
             logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
         )
-        logging.getLogger().addHandler(self.logBox)
+        logging.getLogger().addHandler(self.logBox1)
         logging.getLogger().setLevel(logging.DEBUG)
+        self.logBox2 = QTextEditLogger(self)
+        self.logBox2.setFormatter(
+            logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        )
+        logging.getLogger().addHandler(self.logBox2)
 
     # Set up tabs and layout
     def tabInitialize(self):
@@ -334,13 +343,15 @@ class MainWindow(QMainWindow):
         tab2Title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.tab2.layout.addWidget(tab2Title)
         self.tab2.layout.addLayout(self.configButtonLayout)
+        self.tab2.layout.addWidget(self.logBox2.widget)
+
         # add our widgets to each layout
         self.tab1.layout.addWidget(self.title)
         self.tab1.layout.addLayout(self.mainButtonLayout)
         # Table view
         self.table = QTableView()
         self.tab1.layout.addWidget(self.table)
-        self.tab1.layout.addWidget(self.logBox.widget)
+        self.tab1.layout.addWidget(self.logBox1.widget)
         self.tab1.setLayout(self.tab1.layout)
         self.tab2.setLayout(self.tab2.layout)
 
@@ -383,8 +394,9 @@ class MainWindow(QMainWindow):
         logging.info("Deploying contract...")
         # self.pageLayout.addWidget(prog_bar)
         # call function to deploy new contract
-        dc.main()
+
         try:
+            dc.main()
             # dc.main()
             # Update table
             self.getData()
@@ -395,6 +407,26 @@ class MainWindow(QMainWindow):
                     "An error occured when deploying the contract or querying the chain. Please make sure you have a valid connection to the server and that your .env file is up to date."
                 )
             )
+
+    # Function to display file differences
+    def showDiffs(self, checked):
+        try:
+            self.diffWindow = DiffWindow()
+            self.diffWindow.show()
+        except Exception as e:
+            logging.error(e)
+
+    # Function to show admin window
+    def showAdminWindow(self):
+        try:
+            self.adminWindow = AdminWindow()
+            self.adminWindow.show()
+        except Exception as e:
+            logging.error(e)
+
+    def showCredentialWindow(self):
+        self.credWindow = CredentialWindow()
+        self.credWindow.show()
 
 
 def sigquit_handler(signum, frame):
