@@ -19,6 +19,16 @@
     - Look in the ```dist``` folder for an executable version of the app.
     - If on Mac, can run ```./dmgBuilder.sh``` to build a DMG file of the application and install it to the system.
 
+## Structure
+- All relevant backend modules in the ```source/modules``` folder
+- XML file being checked is located in ```source/logfiles```
+- Symmetric key found in ```source/secrets```
+- All environment variables and Solidity smart contract are found in the root-level of the ```source``` folder
+- Front-end design and entrypoint of program found in ```app.py```. This is similar to a ```main.c``` file
+- Specifications for building the distributable file (executable) are found in ```app.spec```
+- Conda environment packages found in ```environment.yml```
+- Logos for app icon found in root level of project
+
 ## Issues/Comments
 Please email all of the following developers with any questions or issues:
     - Devin Lane: ```ddlane@g.clemson.edu```
