@@ -1,7 +1,26 @@
-## NEW INSTRUCTIONS
-1. Copy ```.env.sample``` to ```.env```
-2. Change value of ```PROJECT_ROOT```, ```PRIVATE_KEY```, and ```PUBLIC_KEY``` to correspond to your system.
-3. Test:
-    - Run ```source/modules/deployContract.py```
-    - Run ```source/modules/updateChain.py```
-    - Run ```source/modules/history.py```
+# GEthereum Project
+
+## Installation
+1. Clone repository into current working directory:
+    - ```git clone https://github.com/silvertenor/blockchain```
+    - Can also download and extract zip file
+2. Set up Conda environment
+    - ```conda env create -f environment.yml```
+    - Note: Conda environment was exported from MacOS Ventura machine. If using windows or a different version of MacOS, may need to manually install all required packages (web3, PyQt, etc...)
+3. Activate conda environment
+    - ```conda activate block```
+
+
+## Running the App
+1. Development mode:
+    - ```python app.py```
+2. Deployment mode:
+    - ```pyinstaller app.spec``` builds the app.
+    - Look in the ```dist``` folder for an executable version of the app.
+    - If on Mac, can run ```./dmgBuilder.sh``` to build a DMG file of the application and install it to the system.
+
+## Issues/Comments
+Please email all of the following developers with any questions or issues:
+    - Devin Lane: ```ddlane@g.clemson.edu```
+    - Paul Cunningham: ```pcunni2@g.clemson.edu```
+    - Molly Ward: ```msward@g.clemson.edu```
